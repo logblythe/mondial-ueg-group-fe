@@ -1,5 +1,6 @@
 import { AuthUser } from "@/type/auth";
 import { GroupCategory } from "@/type/group-category";
+import { GroupMemberPayload } from "@/type/group-member-payload";
 import { GroupSyncStatus } from "@/type/group-sync-status";
 import { Customer, GroupMember, GroupType, Voucher } from "@/type/group-type";
 import { apiUrls } from "./apiUrls";
@@ -53,9 +54,15 @@ class ApiClient {
       `${apiUrls.groups.get}/${contactId}`
     );
   }
-  public async getVoucher(groupId: string): Promise<Voucher> {
+  public async generateVoucher(
+    groupId: string,
+    payload: GroupMemberPayload
+  ): Promise<Voucher> {
     return this.httpClient.request<Voucher>(
-      `${apiUrls.groups.get}/generate-vouchers/${groupId}`
+      `${apiUrls.groups.get}/generate-vouchers/${groupId}`,
+      "POST",
+      {},
+      payload
     );
   }
   public async getGroupCustomer(emails: string[]): Promise<Customer[]> {

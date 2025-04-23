@@ -5,7 +5,7 @@ import EmptyList from "@/components/EmptyList";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { useGroupStore } from "@/store/group-store";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -39,6 +39,27 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     setRowSelection(rowSelection);
   }, [groupMembersQuery.data, selectedGroupMembers]);
 
+  const payload = {
+    vouchers: [],
+  };
+
+  const voucherGenerateMutation = useMutation({
+    mutationFn: (groupId: string) =>
+      apiClient.generateVoucher(groupId, payload),
+    onSuccess: (data) => {
+      console.log("Voucher generated successfully");
+    },
+    onError: (error: any) => {
+      console.error("Error generating voucher", error);
+      if (error instanceof Error) {
+        console.error("Error details:", error.message);
+      }
+    },
+  });
+
+  function onSubmit(groupId: string) {
+    voucherGenerateMutation.mutate(groupId);
+  }
   return (
     <div className="container mx-auto py-10 space-y-2">
       <div className="flex flex-row  justify-between items-end">
@@ -67,17 +88,18 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
           className="px-8"
           disabled={Object.keys(rowSelection).length <= 0}
           onClick={() => {
-            const selectedRows = Object.keys(rowSelection).filter(
-              (key) => rowSelection[key]
-            );
-            const selectedGroupMembers = selectedRows.map((row) => {
-              const index = parseInt(row);
-              return groupMembersQuery.data![index];
-            });
-            setSelectedGroupMembers(selectedGroupMembers);
-            router.push(
-              `/group-members-comparison?groupId=${groupId}&tab=no_eurospine_account`
-            );
+            // const selectedRows = Object.keys(rowSelection).filter(
+            //   (key) => rowSelection[key]
+            // );
+            // const selectedGroupMembers = selectedRows.map((row) => {
+            //   const index = parseInt(row);
+            //   return groupMembersQuery.data![index];
+            // });
+            // setSelectedGroupMembers(selectedGroupMembers);
+            // router.push(
+            //   `/group-members-comparison?groupId=${groupId}&tab=no_eurospine_account`
+            // );
+            onSubmit(groupId);
           }}
         >
           Generate Voucher
