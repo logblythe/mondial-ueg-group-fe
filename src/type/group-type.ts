@@ -5,15 +5,23 @@ export type GroupType = {
 
 export type GroupMember = {
   id: string;
-  openId?: string;
+  OpenId: string;
   internalNumber: number;
   firstName: string;
   lastName: string;
   primaryEmail: string;
-  country?: string;
-  registrationTypes: string[];
+  activationCode?: string;
+  activationCodeFormatted: string[];
+  activationPin: string[];
+  claimAccessURL: string[];
+  typeForVoucher: string[];
+  paymentStatus: string;
+  registrations: Array<{
+    uniqueCode: string;
+    paymentStatus: string;
+    typeForVoucher: number;
+  }>;
   remarks: string[];
-  notes: string[];
 };
 
 export type Participation = {
@@ -26,10 +34,18 @@ export type Participation = {
 
 export type Customer = Pick<
   GroupMember,
-  "firstName" | "lastName" | "primaryEmail" | "country"
+  | "firstName"
+  | "lastName"
+  | "primaryEmail"
+  | "activationCode"
+  | "OpenId"
+  | "remarks"
 > & {
-  openId: string;
+  OpenId: string;
   participation: Participation;
+};
+export type Voucher = {
+  activationCodeFormatted: string;
 };
 
 export type Person = {

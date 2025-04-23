@@ -42,12 +42,16 @@ export default function LoginForm() {
 
   const loginMutation = useMutation({
     mutationFn: (data: z.infer<typeof FormSchema>) => apiClient.login(data),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
+      console.log("on success");
       addUser({ token: data.token });
       localStorage.setItem("token", data.token);
+      localStorage.setItem("username", variables.username);
+      localStorage.setItem("password", variables.password);
       router.push("/groups");
     },
     onError: () => {
+      console.log("on error");
       form.setError(
         "username",
         { message: "Invalid Credentials" },

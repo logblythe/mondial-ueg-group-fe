@@ -7,19 +7,47 @@ import { ColumnDef } from "@tanstack/react-table";
 export const columns: ColumnDef<GroupMember>[] = [
   {
     id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        disabled={!row.getCanSelect()}
-      />
-    ),
+    header: ({ table }) => {
+      const rows = table.getRowModel().rows;
+      const selectableRowCount = rows.filter((row) => {
+        const data = row.original;
+        return (
+          !data.activationCode &&
+          !data.activationCodeFormatted &&
+          data.typeForVoucher != null &&
+          data.paymentStatus !== "CANCELED" &&
+          data.paymentStatus === "CANCELED_GROUP_INVENTORY"
+        );
+      }).length;
+
+      const isHeaderDisabled = selectableRowCount === 0;
+
+      return (
+        <Checkbox
+          checked={table.getIsAllRowsSelected()}
+          onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
+          disabled={isHeaderDisabled}
+        />
+      );
+    },
+
+    cell: ({ row }) => {
+      const isSelectable =
+        // !row.original.activationCode &&
+        // !row.original.activationCodeFormatted &&
+        row.original.typeForVoucher != null &&
+        row.original.paymentStatus != "CANCELED" &&
+        row.original.paymentStatus != "CANCELED_GROUP_INVENTORY";
+      if (!isSelectable) return null;
+
+      return (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          disabled={!row.getCanSelect()}
+        />
+      );
+    },
   },
   {
     accessorKey: "internalNumber",
@@ -34,12 +62,12 @@ export const columns: ColumnDef<GroupMember>[] = [
     header: "Last Name",
   },
   {
-    accessorKey: "primaryEmail",
-    header: "Primary Email",
+    accessorKey: "activationCodeFormatted",
+    header: "Code Formatted",
   },
   {
-    accessorKey: "country",
-    header: "Country",
+    accessorKey: "openID",
+    header: "Open Id",
   },
   {
     accessorKey: "remarks",
@@ -48,7 +76,7 @@ export const columns: ColumnDef<GroupMember>[] = [
       const remarks = row.getValue("remarks") as string[];
       return (
         <ul className="flex flex-col">
-          {remarks.map((remark, index) => (
+          {remarks?.map((remark, index) => (
             <li key={index} className="text-sm text-gray-500">
               * {remark}
             </li>

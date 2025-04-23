@@ -2,9 +2,16 @@ import { AuthUser } from "@/type/auth";
 
 export default class HttpClient {
   private baseUrl: string;
+  private authHeader: string;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+    const encodeCredentials = (username: string, password: string) => {
+      return btoa(`${username}:${password}`);
+    };
+    const username = "mondial-admin";
+    const password = "ciQ09QWex17Pa99RNrg/8Q==";
+    this.authHeader = `Basic ${encodeCredentials(username, password)}`;
   }
 
   private getUserInfo(): AuthUser {
@@ -24,7 +31,7 @@ export default class HttpClient {
     const { token } = this.getUserInfo();
 
     const defaultHeaders: Record<string, string> = {
-      Authorization: `Bearer ${token}`,
+      Authorization: this.authHeader,
       "Content-Type": "application/json",
       ...headers,
     };
@@ -104,6 +111,7 @@ export default class HttpClient {
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, options);
 
+    console.log("we are here");
     if (!response.ok) {
       const responseJson = await response.json();
       throw new Error(responseJson.message);
@@ -111,7 +119,15 @@ export default class HttpClient {
     if (method === "DELETE") {
       return response as T;
     }
-    return await response.json();
+    console.log("response", response);
+
+    try {
+      return await response.json();
+    } catch (e) {
+      return {
+        status: "success",
+      } as T;
+    }
   }
 
   // Download request method

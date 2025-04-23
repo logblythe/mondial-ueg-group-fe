@@ -25,11 +25,6 @@ const useNavItems = () => {
         : `/group-members`,
       icon: <LandPlot className="w-6 h-6" />,
     },
-    {
-      label: "Compare",
-      href: `/group-members-comparison?groupId=${selectedGroupId}`,
-      icon: <CalendarCheck2 className="w-6 h-6" />,
-    },
   ];
 
   return defaultNavItems;

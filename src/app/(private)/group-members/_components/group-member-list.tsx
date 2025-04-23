@@ -1,8 +1,8 @@
 "use client";
 
 import ApiClient from "@/api-client/";
-import { DataTable } from "@/components/data-table";
 import EmptyList from "@/components/EmptyList";
+import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { useGroupStore } from "@/store/group-store";
 import { useQuery } from "@tanstack/react-query";
@@ -80,7 +80,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
             );
           }}
         >
-          Proceed
+          Generate Voucher
         </Button>
       </div>
     </div>
