@@ -18,7 +18,7 @@ const GroupList = () => {
   const { selectedGroupId, selectGroup } = useGroupStore();
 
   const [rowSelection, setRowSelection] = useState({});
-
+  const [groupName, setGroupName] = useState("");
   const { data = [], isLoading } = useQuery({
     queryKey: ["groups"],
     queryFn: () => apiClient.getGroups(),
@@ -34,9 +34,10 @@ const GroupList = () => {
 
   const handleRowClick = (group: GroupType) => {
     selectGroup(group);
+    setGroupName(group.name);
     router.push(`/group-members?groupId=${group.contactId}`);
   };
-
+  console.log("Group Name", groupName);
   return (
     <div className="container mx-auto py-10 space-y-2">
       <div className="flex flex-row  justify-between items-end">

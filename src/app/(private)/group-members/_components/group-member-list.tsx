@@ -5,6 +5,7 @@ import EmptyList from "@/components/EmptyList";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { useGroupStore } from "@/store/group-store";
+import { GroupMemberPayload, Voucher } from "@/type/group-member-payload";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -26,7 +27,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     queryFn: () => apiClient.getGroupMembers(groupId),
     enabled: Boolean(groupId),
   });
-
+  const { selectedGroup } = useGroupStore();
   useEffect(() => {
     if (selectedGroupMembers.length === 0) return;
     const rowSelection: Record<string, boolean> = {};
@@ -39,26 +40,53 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     setRowSelection(rowSelection);
   }, [groupMembersQuery.data, selectedGroupMembers]);
 
-  const payload = {
-    vouchers: [],
+  const toGroupMemberPayload = (): GroupMemberPayload => {
+    const groupName = selectedGroup?.name || "Default Group";
+    console.log("Group name", groupName);
+    const vouchers: Voucher[] = selectedGroupMembers.flatMap((member) =>
+      member.registrations.map((registration: { typeForVoucher: any }) => ({
+        first_name: member.firstName,
+        last_name: member.lastName,
+        email: member.primaryEmail,
+        type: registration.typeForVoucher,
+        role: "DELEGATE",
+        groupName: groupName,
+        contactId: member.id,
+      }))
+    );
+    const payload = {
+      vouchers,
+    };
+    return payload;
   };
 
   const voucherGenerateMutation = useMutation({
-    mutationFn: (groupId: string) =>
-      apiClient.generateVoucher(groupId, payload),
+    mutationFn: ({
+      groupId,
+      payload,
+    }: {
+      groupId: string;
+      payload: GroupMemberPayload;
+    }) => apiClient.generateVoucher(groupId, payload),
     onSuccess: (data) => {
       console.log("Voucher generated successfully");
     },
     onError: (error: any) => {
       console.error("Error generating voucher", error);
-      if (error instanceof Error) {
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        console.error("Response headers:", error.response.headers);
+      } else if (error instanceof Error) {
         console.error("Error details:", error.message);
       }
     },
   });
 
   function onSubmit(groupId: string) {
-    voucherGenerateMutation.mutate(groupId);
+    const payload = toGroupMemberPayload();
+    console.log("Submitting payload", payload);
+    // voucherGenerateMutation.mutate({ groupId, payload });
   }
   return (
     <div className="container mx-auto py-10 space-y-2">

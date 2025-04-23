@@ -44,9 +44,6 @@ export type Customer = Pick<
   OpenId: string;
   participation: Participation;
 };
-export type Voucher = {
-  activationCodeFormatted: string;
-};
 
 export type Person = {
   eventsAir?: GroupMember;

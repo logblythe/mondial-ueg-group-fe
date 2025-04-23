@@ -1,8 +1,8 @@
 import { AuthUser } from "@/type/auth";
 import { GroupCategory } from "@/type/group-category";
-import { GroupMemberPayload } from "@/type/group-member-payload";
+import { GroupMemberPayload, Voucher } from "@/type/group-member-payload";
 import { GroupSyncStatus } from "@/type/group-sync-status";
-import { Customer, GroupMember, GroupType, Voucher } from "@/type/group-type";
+import { Customer, GroupMember, GroupType } from "@/type/group-type";
 import { apiUrls } from "./apiUrls";
 import HttpClient from "./http-client";
 
