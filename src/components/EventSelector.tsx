@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/select";
 import { useGroupStore } from "@/store/group-store";
 import { useQuery } from "@tanstack/react-query";
-import { Loader } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -51,14 +50,6 @@ export function GroupSelector() {
         id="select-event-trigger"
         className="min-w-[180px] max-w-[460px]"
       >
-        {" "}
-        {loadingGroups ? (
-          <div className="flex items-center gap-2">
-            <Loader></Loader>
-          </div>
-        ) : (
-          <span>{}</span>
-        )}
         <SelectValue placeholder="Select a group" />
       </SelectTrigger>
       <SelectContent>

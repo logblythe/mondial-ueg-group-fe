@@ -9,7 +9,7 @@ import { GroupMemberPayload, Voucher } from "@/type/group-member-payload";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { columns } from "./columns";
 
 const apiClient = new ApiClient();
@@ -45,6 +45,28 @@ const GroupMembersList = ({
     });
     setRowSelection(rowSelection);
   }, [groupMembersQuery.data, selectedGroupMembers]);
+
+  useEffect(() => {
+    if (groupId) {
+      generateVoucherStatus.mutate({ groupId });
+    }
+  }, [groupId]);
+
+  const generateVoucherStatus = useMutation({
+    mutationFn: ({ groupId }: { groupId: string }) =>
+      apiClient.generateVoucherStatus(groupId),
+    onSuccess: (data) => {
+      console.log("Voucher status generated", data.status);
+    },
+    onError: (error: any) => {
+      console.error("Error generating voucher", error);
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+      } else if (error instanceof Error) {
+        console.error("Error details:", error.message);
+      }
+    },
+  });
 
   console.log("selected memebers", selectedGroupMembers);
   const toGroupMemberPayload = (): GroupMemberPayload => {
@@ -88,20 +110,6 @@ const GroupMembersList = ({
       }
     },
   });
-
-  const intervalsRef = useRef<{
-    [key: string]: ReturnType<typeof setTimeout> | null;
-  }>({});
-
-  const handleVoucherCreation = (id: string) => {
-    setLoadingGroups(true);
-    if (intervalsRef.current[id]) return;
-
-    intervalsRef.current[id] = setTimeout(() => {
-      setLoadingGroups(false);
-      intervalsRef.current[id] = null;
-    }, 1000);
-  };
 
   function onSubmit(groupId: string) {
     const payload = toGroupMemberPayload();
@@ -148,7 +156,6 @@ const GroupMembersList = ({
             //   `/group-members-comparison?groupId=${groupId}&tab=no_eurospine_account`
             // );
             onSubmit(groupId);
-            handleVoucherCreation(groupId);
           }}
         >
           Generate Voucher

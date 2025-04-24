@@ -31,7 +31,10 @@ export type Participation = {
   regGroup: string;
   checkboxAccepted: "0" | "1";
 };
-
+export type status = {
+  groupId: string;
+  status: string;
+};
 export type Customer = Pick<
   GroupMember,
   | "firstName"
