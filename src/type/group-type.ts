@@ -14,7 +14,7 @@ export type GroupMember = {
   activationCodeFormatted: string[];
   activationPin: string[];
   claimAccessURL: string[];
-  typeForVoucher: string[];
+  typeForVoucher: number;
   paymentStatus: string;
   registrations: Array<{
     uniqueCode: string;
@@ -48,4 +48,10 @@ export type Customer = Pick<
 export type Person = {
   eventsAir?: GroupMember;
   eurospine?: Customer;
+};
+export type PersonalDetails = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  id: string;
 };

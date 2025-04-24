@@ -12,7 +12,9 @@ import {
 } from "@/components/ui/select";
 import { useGroupStore } from "@/store/group-store";
 import { useQuery } from "@tanstack/react-query";
+import { Loader } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 const apiClient = new ApiClient();
 
@@ -20,6 +22,7 @@ export function GroupSelector() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [loadingGroups, setLoadingGroups] = useState(false);
 
   const { data } = useQuery({
     queryKey: ["groups"],
@@ -40,6 +43,7 @@ export function GroupSelector() {
         }
       }}
       value={selectedGroupId}
+
       //TODO: conditionally disable the select if the pathname is
       // disabled={RULES_DETAILS_ROUTE_REGEX.test(pathname)}
     >
@@ -47,6 +51,14 @@ export function GroupSelector() {
         id="select-event-trigger"
         className="min-w-[180px] max-w-[460px]"
       >
+        {" "}
+        {loadingGroups ? (
+          <div className="flex items-center gap-2">
+            <Loader></Loader>
+          </div>
+        ) : (
+          <span>{}</span>
+        )}
         <SelectValue placeholder="Select a group" />
       </SelectTrigger>
       <SelectContent>

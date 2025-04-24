@@ -64,6 +64,7 @@ export function ControlledSelect(props: Props) {
             }}
             defaultValue={field.value}
           >
+            {" "}
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder={placeholder} />

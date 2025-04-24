@@ -9,14 +9,20 @@ import { GroupMemberPayload, Voucher } from "@/type/group-member-payload";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { columns } from "./columns";
 
 const apiClient = new ApiClient();
 
-const GroupMembersList = ({ groupId }: { groupId: string }) => {
+const GroupMembersList = ({
+  groupId,
+  setLoadingGroups,
+}: {
+  groupId: string;
+  setLoadingGroups: (loading: boolean) => void;
+}) => {
   const router = useRouter();
-
+  // const [loadingGroups, setLoadingGroups] = useState<boolean>();
   const { setSelectedGroupMembers, selectedGroupMembers = [] } =
     useGroupStore();
 
@@ -40,23 +46,23 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     setRowSelection(rowSelection);
   }, [groupMembersQuery.data, selectedGroupMembers]);
 
+  console.log("selected memebers", selectedGroupMembers);
   const toGroupMemberPayload = (): GroupMemberPayload => {
     const groupName = selectedGroup?.name || "Default Group";
-    console.log("Group name", groupName);
-    const vouchers: Voucher[] = selectedGroupMembers.flatMap((member) =>
-      member.registrations.map((registration: { typeForVoucher: any }) => ({
+
+    const generateVoucher: Voucher[] = selectedGroupMembers.map((member) => {
+      return {
         first_name: member.firstName,
         last_name: member.lastName,
         email: member.primaryEmail,
-        type: registration.typeForVoucher,
+        contactId: member.id,
         role: "DELEGATE",
         groupName: groupName,
-        contactId: member.id,
-      }))
-    );
-    const payload = {
-      vouchers,
-    };
+        type: member.typeForVoucher,
+        openID: member.OpenId,
+      };
+    });
+    const payload = { vouchers: generateVoucher };
     return payload;
   };
 
@@ -83,10 +89,24 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     },
   });
 
+  const intervalsRef = useRef<{
+    [key: string]: ReturnType<typeof setTimeout> | null;
+  }>({});
+
+  const handleVoucherCreation = (id: string) => {
+    setLoadingGroups(true);
+    if (intervalsRef.current[id]) return;
+
+    intervalsRef.current[id] = setTimeout(() => {
+      setLoadingGroups(false);
+      intervalsRef.current[id] = null;
+    }, 1000);
+  };
+
   function onSubmit(groupId: string) {
     const payload = toGroupMemberPayload();
     console.log("Submitting payload", payload);
-    // voucherGenerateMutation.mutate({ groupId, payload });
+    voucherGenerateMutation.mutate({ groupId, payload });
   }
   return (
     <div className="container mx-auto py-10 space-y-2">
@@ -116,18 +136,19 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
           className="px-8"
           disabled={Object.keys(rowSelection).length <= 0}
           onClick={() => {
-            // const selectedRows = Object.keys(rowSelection).filter(
-            //   (key) => rowSelection[key]
-            // );
-            // const selectedGroupMembers = selectedRows.map((row) => {
-            //   const index = parseInt(row);
-            //   return groupMembersQuery.data![index];
-            // });
-            // setSelectedGroupMembers(selectedGroupMembers);
+            const selectedRows = Object.keys(rowSelection).filter(
+              (key) => rowSelection[key]
+            );
+            const selectedGroupMembers = selectedRows.map((row) => {
+              const index = parseInt(row);
+              return groupMembersQuery.data![index];
+            });
+            setSelectedGroupMembers(selectedGroupMembers);
             // router.push(
             //   `/group-members-comparison?groupId=${groupId}&tab=no_eurospine_account`
             // );
             onSubmit(groupId);
+            handleVoucherCreation(groupId);
           }}
         >
           Generate Voucher
