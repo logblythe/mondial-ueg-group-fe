@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useGroupStore } from "@/store/group-store";
 import { GroupMemberPayload, Voucher } from "@/type/group-member-payload";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { columns } from "./columns";
@@ -25,15 +25,43 @@ const GroupMembersList = ({
   // const [loadingGroups, setLoadingGroups] = useState<boolean>();
   const { setSelectedGroupMembers, selectedGroupMembers = [] } =
     useGroupStore();
-
+  const [shouldFetch, setShouldFetch] = useState<boolean>();
+  const [isComplete, setIsComplete] = useState<boolean>();
+  const [isButtonLoading, setIsButtonLoading] = useState<Boolean>(false);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+
+  const statusList = ["NOT_FOUND", "FAILED", "COMPLETED"];
 
   const groupMembersQuery = useQuery({
     queryKey: ["groups", groupId, "members"],
-    queryFn: () => apiClient.getGroupMembers(groupId),
+    queryFn: () => apiClient.getGroupMembers(groupId), // no .data
     enabled: Boolean(groupId),
   });
+
+  const {
+    data: groupStatusData,
+    isLoading,
+    isError,
+    error,
+    isFetching,
+    refetch,
+    status,
+  } = useQuery({
+    queryKey: ["groups", groupId, "members"],
+    queryFn: () => apiClient.generateVoucherStatus(groupId),
+    enabled: Boolean(shouldFetch),
+    refetchInterval: isComplete ? false : 3000,
+  });
+
+  useEffect(() => {
+    if (groupStatusData?.status === "COMPLETED") {
+      setIsComplete(true);
+      setIsButtonLoading(false);
+    }
+  }, [groupStatusData?.status]);
+
   const { selectedGroup } = useGroupStore();
+
   useEffect(() => {
     if (selectedGroupMembers.length === 0) return;
     const rowSelection: Record<string, boolean> = {};
@@ -46,11 +74,11 @@ const GroupMembersList = ({
     setRowSelection(rowSelection);
   }, [groupMembersQuery.data, selectedGroupMembers]);
 
-  useEffect(() => {
-    if (groupId) {
-      generateVoucherStatus.mutate({ groupId });
-    }
-  }, [groupId]);
+  // useEffect(() => {
+  //   if (groupId) {
+  //     generateVoucherStatus.mutate({ groupId });
+  //   }
+  // }, [groupId]);
 
   const generateVoucherStatus = useMutation({
     mutationFn: ({ groupId }: { groupId: string }) =>
@@ -68,7 +96,7 @@ const GroupMembersList = ({
     },
   });
 
-  console.log("selected memebers", selectedGroupMembers);
+  // console.log("selected memebers", selectedGroupMembers);
   const toGroupMemberPayload = (): GroupMemberPayload => {
     const groupName = selectedGroup?.name || "Default Group";
 
@@ -111,11 +139,13 @@ const GroupMembersList = ({
     },
   });
 
-  function onSubmit(groupId: string) {
+  const onSubmit = (groupId: string) => {
     const payload = toGroupMemberPayload();
     console.log("Submitting payload", payload);
     voucherGenerateMutation.mutate({ groupId, payload });
-  }
+    generateVoucherStatus.mutate({ groupId });
+  };
+
   return (
     <div className="container mx-auto py-10 space-y-2">
       <div className="flex flex-row  justify-between items-end">
@@ -152,13 +182,16 @@ const GroupMembersList = ({
               return groupMembersQuery.data![index];
             });
             setSelectedGroupMembers(selectedGroupMembers);
-            // router.push(
-            //   `/group-members-comparison?groupId=${groupId}&tab=no_eurospine_account`
-            // );
+            setShouldFetch(true);
+            setIsButtonLoading(true);
             onSubmit(groupId);
           }}
         >
-          Generate Voucher
+          {/* Generate Voucher */}
+          {isButtonLoading ? (
+            <Loader className="w-4 h-4 animate-spin mr-2" />
+          ) : null}
+          {isButtonLoading ? "Generating..." : "Generate Voucher"}
         </Button>
       </div>
     </div>
