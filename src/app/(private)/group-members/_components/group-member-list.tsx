@@ -52,7 +52,7 @@ const GroupMembersList = ({
     enabled: Boolean(shouldFetch),
     refetchInterval: isComplete ? false : 3000,
   });
-
+  console.log("the data are", groupStatusData?.status);
   useEffect(() => {
     if (groupStatusData?.status === "COMPLETED") {
       setIsComplete(true);
@@ -62,17 +62,17 @@ const GroupMembersList = ({
 
   const { selectedGroup } = useGroupStore();
 
-  useEffect(() => {
-    if (selectedGroupMembers.length === 0) return;
-    const rowSelection: Record<string, boolean> = {};
-    selectedGroupMembers.forEach((selectedMember) => {
-      const index = groupMembersQuery.data?.findIndex(
-        (member) => member.internalNumber === selectedMember.internalNumber
-      ) as number;
-      rowSelection[index] = true;
-    });
-    setRowSelection(rowSelection);
-  }, [groupMembersQuery.data, selectedGroupMembers]);
+  // useEffect(() => {
+  //   if (selectedGroupMembers.length === 0) return;
+  //   const rowSelection: Record<string, boolean> = {};
+  //   selectedGroupMembers.forEach((selectedMember) => {
+  //     const index = groupMembersQuery.data?.findIndex(
+  //       (member) => member.internalNumber === selectedMember.internalNumber
+  //     ) as number;
+  //     rowSelection[index] = true;
+  //   });
+  //   setRowSelection(rowSelection);
+  // }, [groupMembersQuery.data, selectedGroupMembers]);
 
   // useEffect(() => {
   //   if (groupId) {
@@ -80,21 +80,21 @@ const GroupMembersList = ({
   //   }
   // }, [groupId]);
 
-  const generateVoucherStatus = useMutation({
-    mutationFn: ({ groupId }: { groupId: string }) =>
-      apiClient.generateVoucherStatus(groupId),
-    onSuccess: (data) => {
-      console.log("Voucher status generated", data.status);
-    },
-    onError: (error: any) => {
-      console.error("Error generating voucher", error);
-      if (error.response) {
-        console.error("Response data:", error.response.data);
-      } else if (error instanceof Error) {
-        console.error("Error details:", error.message);
-      }
-    },
-  });
+  // const generateVoucherStatus = useMutation({
+  //   mutationFn: ({ groupId }: { groupId: string }) =>
+  //     apiClient.generateVoucherStatus(groupId),
+  //   onSuccess: (data) => {
+  //     console.log("Voucher status generated", data.status);
+  //   },
+  //   onError: (error: any) => {
+  //     console.error("Error generating voucher", error);
+  //     if (error.response) {
+  //       console.error("Response data:", error.response.data);
+  //     } else if (error instanceof Error) {
+  //       console.error("Error details:", error.message);
+  //     }
+  //   },
+  // });
 
   // console.log("selected memebers", selectedGroupMembers);
   const toGroupMemberPayload = (): GroupMemberPayload => {
@@ -143,7 +143,7 @@ const GroupMembersList = ({
     const payload = toGroupMemberPayload();
     console.log("Submitting payload", payload);
     voucherGenerateMutation.mutate({ groupId, payload });
-    generateVoucherStatus.mutate({ groupId });
+    // generateVoucherStatus.mutate({ groupId });
   };
 
   return (
