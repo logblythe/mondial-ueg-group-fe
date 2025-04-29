@@ -5,7 +5,7 @@ export type GroupType = {
 
 export type GroupMember = {
   id: string;
-  OpenId: string;
+  openID: string;
   internalNumber: number;
   firstName: string;
   lastName: string;
@@ -41,7 +41,7 @@ export type Customer = Pick<
   | "lastName"
   | "primaryEmail"
   | "activationCode"
-  | "OpenId"
+  | "openID"
   | "remarks"
 > & {
   OpenId: string;
@@ -57,4 +57,9 @@ export type PersonalDetails = {
   lastName: string;
   email: string;
   id: string;
+};
+
+export type AutoReedemStatus = {
+  name: string;
+  status: string;
 };

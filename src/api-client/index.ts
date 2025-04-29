@@ -2,7 +2,13 @@ import { AuthUser } from "@/type/auth";
 import { GroupCategory } from "@/type/group-category";
 import { GroupMemberPayload, Voucher } from "@/type/group-member-payload";
 import { GroupSyncStatus } from "@/type/group-sync-status";
-import { Customer, GroupMember, GroupType, status } from "@/type/group-type";
+import {
+  AutoReedemStatus,
+  Customer,
+  GroupMember,
+  GroupType,
+  status,
+} from "@/type/group-type";
 import { apiUrls } from "./apiUrls";
 import HttpClient from "./http-client";
 
@@ -79,6 +85,17 @@ class ApiClient {
       "POST",
       {},
       emails
+    );
+  }
+
+  public async generateAutoReedem(
+    groupId: string[]
+  ): Promise<AutoReedemStatus[]> {
+    return this.httpClient.request<AutoReedemStatus[]>(
+      `${apiUrls.groups.get}/generate-vouchers/${groupId}/auto-redeem`,
+      "POST",
+      {},
+      groupId
     );
   }
 

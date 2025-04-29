@@ -32,13 +32,13 @@ export const columns: ColumnDef<GroupMember>[] = [
     },
 
     cell: ({ row }) => {
-      const isSelectable =
-        // !row.original.activationCode &&
-        // !row.original.activationCodeFormatted &&
-        row.original.typeForVoucher != null &&
-        row.original.paymentStatus != "CANCELED" &&
-        row.original.paymentStatus != "CANCELED_GROUP_INVENTORY";
-      if (!isSelectable) return null;
+      // const isSelectable =
+      // !row.original.activationCode &&
+      // !row.original.activationCodeFormatted &&
+      // row.original.typeForVoucher != null &&
+      // row.original.paymentStatus != "CANCELED" &&
+      // row.original.paymentStatus != "CANCELED_GROUP_INVENTORY";
+      // if (!isSelectable) return null;
 
       return (
         <Checkbox
