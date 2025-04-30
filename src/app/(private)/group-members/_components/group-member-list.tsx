@@ -6,24 +6,28 @@ import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useGroupStore } from "@/store/group-store";
-import { GroupMemberPayload, Voucher } from "@/type/group-member-payload";
+import {
+  AutoRedeemVoucher,
+  GroupAutoRedeemPayload,
+} from "@/type/group-member-payload";
+import { GroupMember } from "@/type/group-type";
+import {
+  GroupVoucherGenerationPayload,
+  Voucher,
+} from "@/type/voucher-generation-payload";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { columns } from "./columns";
 
 const apiClient = new ApiClient();
 
 const GroupMembersList = ({ groupId }: { groupId: string }) => {
-  const router = useRouter();
   const [hasOpenId, setHasOpenId] = useState(false);
-  const { setSelectedGroupMembers, selectedGroupMembers = [] } =
-    useGroupStore();
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const [shouldAutoRedeem, setShouldAutoRedeem] = useState(false);
+  const [isAutoRedeemChecked, setIsAutoREdeemChecked] = useState(false);
 
   const groupMembersQuery = useQuery({
     queryKey: ["groups", groupId, "members"],
@@ -42,59 +46,38 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     refetchInterval: isComplete ? false : 3000,
     enabled: Boolean(groupId),
   });
-  console.log("the data are", groupStatusData?.status);
 
   useEffect(() => {
     const members = groupMembersQuery.data || [];
-    console.log("the group members are", members);
     const anyWithOpenId = members.some((member) => member.openID);
-    console.log("check openid", anyWithOpenId);
     setHasOpenId(anyWithOpenId);
   }, [groupMembersQuery.data]);
 
-  // const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setShouldAutoRedeem(event.target.checked);
-  //   if (selectedGroup) {
-  //     if (hasOpenId) {
-  //       selectedGroup.forEach((id) => {
-  //         if (!intervalsRef.current[id]) {
-  //           intervalsRef.current[id] = setInterval(() => {
-  //             fetchAutoreedemStatus(id);
-  //           }, 10000);
-  //         }
-  //       });
-  //     }
-  //   }
-  // };
-
-  const handleAutoRedeem = () => {
-    const OpenID = selectedGroupMembers.some((member) => member.openID);
-
-    setHasOpenId(OpenID);
-  };
-  console.log("has openId", hasOpenId);
-  console.log("the selected members are", rowSelection);
   useEffect(() => {
     if (
       groupStatusData?.status === "COMPLETED" ||
       groupStatusData?.status === "NOT_FOUND" ||
-      groupStatusData?.status === "FAILED"
+      groupStatusData?.status === "FAILED" ||
+      groupStatusData?.status.includes("FAILED")
     ) {
       setIsComplete(true);
       setIsButtonLoading(false);
       groupMembersQuery.refetch();
-    }
-    if (isLoading || isFetching) {
+    } else if (isLoading || isFetching) {
       setIsButtonLoading(true);
+    } else {
+      setIsButtonLoading(false);
     }
-  }, [groupStatusData?.status]);
+  }, [isLoading, isFetching, groupStatusData]);
 
   const { selectedGroup } = useGroupStore();
 
-  const toGroupMemberPayload = (): GroupMemberPayload => {
+  const createVoucherGenerationPayload = (
+    groupMembers: GroupMember[]
+  ): GroupVoucherGenerationPayload => {
     const groupName = selectedGroup?.name || "Default Group";
 
-    const generateVoucher: Voucher[] = selectedGroupMembers.map((member) => {
+    const generateVoucher: Voucher[] = groupMembers.map((member) => {
       return {
         first_name: member.firstName,
         last_name: member.lastName,
@@ -103,10 +86,34 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
         role: "DELEGATE",
         groupName: groupName,
         type: member.typeForVoucher,
-        openID: member.openID,
       };
     });
     const payload = { vouchers: generateVoucher };
+    return payload;
+  };
+
+  const createAutoRedeemPayload = (
+    groupMembers: GroupMember[]
+  ): GroupAutoRedeemPayload => {
+    if (!selectedGroup) {
+      return { vouchers: [] };
+    }
+    const groupName = selectedGroup.name;
+    const generateAutoRedeem: AutoRedeemVoucher[] = groupMembers.map(
+      (member) => {
+        return {
+          first_name: member.firstName,
+          last_name: member.lastName,
+          email: member.primaryEmail,
+          contactId: member.id,
+          role: "DELEGATE",
+          groupName: groupName,
+          type: member.typeForVoucher,
+          openID: member.openID,
+        };
+      }
+    );
+    const payload = { vouchers: generateAutoRedeem };
     return payload;
   };
 
@@ -116,33 +123,70 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
       payload,
     }: {
       groupId: string;
-      payload: GroupMemberPayload;
+      payload: GroupVoucherGenerationPayload;
     }) => apiClient.generateVoucher(groupId, payload),
     onSuccess: (data) => {
-      console.log("Voucher generated successfully");
-      setIsComplete(false);
       refetchVoucherStatus();
     },
     onError: (error: any) => {
       console.error("Error generating voucher", error);
-
       if (error.response) {
-        console.error("Response data:", error.response.data);
-        console.error("Response status:", error.response.status);
-        console.error("Response headers:", error.response.headers);
+        console.error("Response data:", error.response);
       } else if (error instanceof Error) {
         console.error("Error details:", error.message);
       }
     },
   });
 
-  const onSubmit = (groupId: string) => {
+  const autoRedeemGenerateMutation = useMutation({
+    mutationFn: ({
+      groupId,
+      payload,
+    }: {
+      groupId: string;
+      payload: GroupAutoRedeemPayload;
+    }) => apiClient.generateAutoReedem(groupId, payload),
+    onSuccess: (data) => {
+      refetchVoucherStatus();
+    },
+    onError: (error: any) => {
+      console.error("Error generating voucher", error);
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+      } else if (error instanceof Error) {
+        console.error("Error details:", error.message);
+      }
+    },
+  });
+
+  const onSubmit = (groupMembers: GroupMember[]) => {
     setIsButtonLoading(true);
-    const payload = toGroupMemberPayload();
     setIsComplete(false);
-    console.log("Submitting payload", payload);
-    voucherGenerateMutation.mutate({ groupId, payload });
-    // generateVoucherStatus.mutate({ groupId });
+    if (isAutoRedeemChecked) {
+      const autoRedeemPayload = createAutoRedeemPayload(groupMembers);
+      if (autoRedeemPayload.vouchers.length > 0) {
+        autoRedeemGenerateMutation.mutate({
+          groupId,
+          payload: autoRedeemPayload,
+        });
+      }
+    } else {
+      const voucherPayload = createVoucherGenerationPayload(groupMembers);
+      if (voucherPayload.vouchers.length > 0) {
+        voucherGenerateMutation.mutate({ groupId, payload: voucherPayload });
+      }
+    }
+  };
+
+  const handleOnClick = () => {
+    const selectedRows = Object.keys(rowSelection).filter(
+      (key) => rowSelection[key]
+    );
+    const selectedGroupMembers = selectedRows.map((row) => {
+      const index = parseInt(row);
+      return groupMembersQuery.data![index];
+    });
+    onSubmit(selectedGroupMembers);
   };
 
   return (
@@ -168,23 +212,12 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
         }}
         enableMultiRowSelection
       />
-      <div className="flex flex-row justify-end">
+      <div className="flex flex-row justify-end pt-4">
         <Button
           className="px-8"
           disabled={Object.keys(rowSelection).length <= 0 || isButtonLoading}
-          onClick={() => {
-            const selectedRows = Object.keys(rowSelection).filter(
-              (key) => rowSelection[key]
-            );
-            const selectedGroupMembers = selectedRows.map((row) => {
-              const index = parseInt(row);
-              return groupMembersQuery.data![index];
-            });
-            setSelectedGroupMembers(selectedGroupMembers);
-            onSubmit(groupId);
-          }}
+          onClick={handleOnClick}
         >
-          {/* Generate Voucher */}
           {isButtonLoading ? (
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
           ) : null}
@@ -192,8 +225,13 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
         </Button>
       </div>
 
-      <div className="flex flex-row justify-end">
-        <Checkbox disabled={!hasOpenId} />
+      <div className="flex flex-row justify-end gap-2 items-center pt-2">
+        <Checkbox
+          disabled={!hasOpenId}
+          onCheckedChange={(e) => {
+            setIsAutoREdeemChecked(e as boolean);
+          }}
+        />
         <label
           htmlFor="terms"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

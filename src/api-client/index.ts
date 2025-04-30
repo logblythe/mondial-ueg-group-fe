@@ -1,14 +1,15 @@
 import { AuthUser } from "@/type/auth";
 import { GroupCategory } from "@/type/group-category";
-import { GroupMemberPayload, Voucher } from "@/type/group-member-payload";
-import { GroupSyncStatus } from "@/type/group-sync-status";
 import {
-  AutoReedemStatus,
-  Customer,
-  GroupMember,
-  GroupType,
-  status,
-} from "@/type/group-type";
+  AutoRedeemVoucher,
+  GroupAutoRedeemPayload,
+} from "@/type/group-member-payload";
+import { GroupSyncStatus } from "@/type/group-sync-status";
+import { Customer, GroupMember, GroupType, status } from "@/type/group-type";
+import {
+  GroupVoucherGenerationPayload,
+  Voucher,
+} from "@/type/voucher-generation-payload";
 import { apiUrls } from "./apiUrls";
 import HttpClient from "./http-client";
 
@@ -62,9 +63,9 @@ class ApiClient {
   }
   public async generateVoucher(
     groupId: string,
-    payload: GroupMemberPayload
-  ): Promise<Voucher> {
-    return this.httpClient.request<Voucher>(
+    payload: GroupVoucherGenerationPayload
+  ): Promise<Voucher[]> {
+    return this.httpClient.request<Voucher[]>(
       `${apiUrls.groups.get}/generate-vouchers/${groupId}`,
       "POST",
       {},
@@ -89,13 +90,14 @@ class ApiClient {
   }
 
   public async generateAutoReedem(
-    groupId: string[]
-  ): Promise<AutoReedemStatus[]> {
-    return this.httpClient.request<AutoReedemStatus[]>(
+    groupId: string,
+    payload: GroupAutoRedeemPayload
+  ): Promise<AutoRedeemVoucher[]> {
+    return this.httpClient.request<AutoRedeemVoucher[]>(
       `${apiUrls.groups.get}/generate-vouchers/${groupId}/auto-redeem`,
       "POST",
       {},
-      groupId
+      payload
     );
   }
 
