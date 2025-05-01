@@ -12,39 +12,42 @@ export const columns: ColumnDef<GroupMember>[] = [
       const selectableRowCount = rows.filter((row) => {
         const data = row.original;
         return (
-          !data.activationCode &&
           !data.activationCodeFormatted &&
           data.typeForVoucher != null &&
           data.paymentStatus !== "CANCELED" &&
-          data.paymentStatus === "CANCELED_GROUP_INVENTORY"
+          data.paymentStatus !== "CANCELED_GROUP_INVENTORY"
         );
       }).length;
 
-      const isHeaderDisabled = selectableRowCount === 0;
+      // const isHeaderDisabled = selectableRowCount > 0;
 
       return (
         <Checkbox
           checked={table.getIsAllRowsSelected()}
           onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
-          disabled={isHeaderDisabled}
+          disabled={selectableRowCount === 0}
         />
       );
     },
 
     cell: ({ row }) => {
-      // const isSelectable =
-      // !row.original.activationCode &&
-      // !row.original.activationCodeFormatted &&
-      // row.original.typeForVoucher != null &&
+      const isSelectable =
+        !row.original.activationCodeFormatted &&
+        row.original.typeForVoucher != null &&
+        row.original.remarks.length === 0 &&
+        row.original.paymentStatus != "CANCELED" &&
+        row.original.paymentStatus != "CANCELED_GROUP_INVENTORY";
       // row.original.paymentStatus != "CANCELED" &&
-      // row.original.paymentStatus != "CANCELED_GROUP_INVENTORY";
-      // if (!isSelectable) return null;
+      // row.original.paymentStatus != "CANCELED_GROUP_INVENTORY" &&
+      // !row.original.remarks;
+
+      if (!isSelectable) return null;
 
       return (
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          disabled={!row.getCanSelect()}
+          disabled={!isSelectable}
         />
       );
     },

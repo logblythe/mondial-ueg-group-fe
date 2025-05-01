@@ -44,7 +44,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     queryKey: ["groups", groupId, "status"],
     queryFn: () => apiClient.generateVoucherStatus(groupId),
     refetchInterval: isComplete ? false : 3000,
-    enabled: Boolean(groupId),
+    // enabled: Boolean(groupId),
   });
 
   useEffect(() => {
@@ -54,19 +54,22 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
   }, [groupMembersQuery.data]);
 
   useEffect(() => {
+    if (!groupStatusData?.status) return;
+
+    const status = groupStatusData.status;
+
     if (
-      groupStatusData?.status === "COMPLETED" ||
-      groupStatusData?.status === "NOT_FOUND" ||
-      groupStatusData?.status === "FAILED" ||
-      groupStatusData?.status.includes("FAILED")
+      status === "COMPLETED" ||
+      status === "NOT_FOUND" ||
+      status === "FAILED" ||
+      status.includes("FAILED")
     ) {
       setIsComplete(true);
-      setIsButtonLoading(false);
       groupMembersQuery.refetch();
-    } else if (isLoading || isFetching) {
-      setIsButtonLoading(true);
-    } else {
       setIsButtonLoading(false);
+    } else {
+      setIsButtonLoading(true);
+      setIsComplete(false);
     }
   }, [isLoading, isFetching, groupStatusData]);
 
@@ -160,7 +163,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
   });
 
   const onSubmit = (groupMembers: GroupMember[]) => {
-    setIsButtonLoading(true);
+    // setIsButtonLoading(true);
     setIsComplete(false);
     if (isAutoRedeemChecked) {
       const autoRedeemPayload = createAutoRedeemPayload(groupMembers);
