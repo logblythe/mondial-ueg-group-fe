@@ -232,6 +232,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
 
       <div className="flex flex-row justify-end gap-2 items-center pt-2">
         <Checkbox
+          checked={isAutoRedeemChecked}
           disabled={!hasOpenId}
           onCheckedChange={(e) => {
             setIsAutoREdeemChecked(e as boolean);
