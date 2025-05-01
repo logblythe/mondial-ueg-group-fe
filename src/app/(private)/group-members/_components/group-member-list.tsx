@@ -32,7 +32,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
   const groupMembersQuery = useQuery({
     queryKey: ["groups", groupId, "members"],
     queryFn: () => apiClient.getGroupMembers(groupId),
-    enabled: Boolean(groupId),
+    // enabled: Boolean(groupId),
   });
 
   const {
@@ -46,6 +46,11 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     refetchInterval: isComplete ? false : 3000,
     // enabled: Boolean(groupId),
   });
+
+  useEffect(() => {
+    setIsButtonLoading(true);
+    setIsComplete(false);
+  }, [groupId]);
 
   useEffect(() => {
     const members = groupMembersQuery.data || [];
