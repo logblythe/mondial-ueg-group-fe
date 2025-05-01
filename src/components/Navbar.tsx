@@ -10,9 +10,9 @@ const Navbar = (props: Props) => {
   return (
     <nav
       className={classNames({
-        "bg-white text-zinc-500": true, // colors
-        "flex items-center": true, // layout
-        "w-screen md:w-full sticky z-10 px-8 shadow-sm h-[73px] top-0 ": true, //positioning & styling
+        "bg-white text-zinc-500": true,
+        "flex items-center": true,
+        "w-screen md:w-full sticky z-10 px-8 shadow-sm h-[73px] top-0 ": true,
       })}
     >
       <p className="font-bold text-xs md:text-sm">Group Portal</p>

@@ -19,9 +19,6 @@ export type SyncGroupPayload = {
 };
 
 class ApiClient {
-  // private baseUrl: string =
-  //   "https://mondial-eurospine-group-uat-e62a85e3f3da.herokuapp.com/api/v1";
-
   private apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   private baseUrl: string = `${this.apiUrl}`;
@@ -32,7 +29,6 @@ class ApiClient {
     this.httpClient = new HttpClient(this.baseUrl);
   }
 
-  // Example functions
   public async getUserData(userId: number): Promise<any> {
     return this.httpClient.request<any>(`/users/${userId}`);
   }
@@ -41,7 +37,6 @@ class ApiClient {
     return this.httpClient.request<any>(endpoint, "POST", {}, data);
   }
 
-  //AUTHENTICATION
   public async login(data: {
     username: string;
     password: string;
@@ -54,8 +49,8 @@ class ApiClient {
     );
   }
 
-  //GROUPS
   public async getGroups(): Promise<GroupType[]> {
+    console.log("we are here");
     return this.httpClient.request<GroupType[]>(apiUrls.groups.get);
   }
 

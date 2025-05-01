@@ -1,6 +1,6 @@
 export const apiUrls = {
   auth: {
-    login: "/auth/login",
+    login: "/api/v1/auth/login",
   },
   groups: {
     get: "/api/v1/groups",

@@ -19,8 +19,6 @@ export const columns: ColumnDef<GroupMember>[] = [
         );
       }).length;
 
-      // const isHeaderDisabled = selectableRowCount > 0;
-
       return (
         <Checkbox
           checked={table.getIsAllRowsSelected()}
@@ -37,9 +35,6 @@ export const columns: ColumnDef<GroupMember>[] = [
         row.original.remarks.length === 0 &&
         row.original.paymentStatus != "CANCELED" &&
         row.original.paymentStatus != "CANCELED_GROUP_INVENTORY";
-      // row.original.paymentStatus != "CANCELED" &&
-      // row.original.paymentStatus != "CANCELED_GROUP_INVENTORY" &&
-      // !row.original.remarks;
 
       if (!isSelectable) return null;
 

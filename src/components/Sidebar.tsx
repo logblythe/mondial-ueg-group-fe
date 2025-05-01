@@ -1,5 +1,5 @@
 "use client";
-/* eslint-disable @next/next/no-img-element */
+
 import useNavItems from "@/hooks/useNavItems";
 import { useUser } from "@/hooks/useUser";
 import classNames from "clsx";
@@ -45,7 +45,6 @@ const Sidebar = ({
             true,
         })}
       >
-        {/* logo and collapse button */}
         <div
           className={classNames({
             "flex items-center border-b border-b-indigo-800 transition-none":
@@ -83,8 +82,8 @@ const Sidebar = ({
                 <li
                   key={index}
                   className={classNames({
-                    "text-indigo-100 hover:bg-indigo-900 flex": true, //colors
-                    "transition-colors duration-300": true, //animation
+                    "text-indigo-100 hover:bg-indigo-900 flex": true,
+                    "transition-colors duration-300": true,
                     "rounded-md p-2 mx-3 gap-4 ": !collapsed,
                     "rounded-full p-2 mx-3 w-10 h-10": collapsed,
                     "bg-indigo-900": item.href.split("?")[0] === pathname,

@@ -32,7 +32,6 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
   const groupMembersQuery = useQuery({
     queryKey: ["groups", groupId, "members"],
     queryFn: () => apiClient.getGroupMembers(groupId),
-    // enabled: Boolean(groupId),
   });
 
   const {
@@ -44,7 +43,6 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     queryKey: ["groups", groupId, "status"],
     queryFn: () => apiClient.generateVoucherStatus(groupId),
     refetchInterval: isComplete ? false : 3000,
-    // enabled: Boolean(groupId),
   });
 
   useEffect(() => {
@@ -168,7 +166,6 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
   });
 
   const onSubmit = (groupMembers: GroupMember[]) => {
-    // setIsButtonLoading(true);
     setIsComplete(false);
     if (isAutoRedeemChecked) {
       const autoRedeemPayload = createAutoRedeemPayload(groupMembers);
