@@ -48,6 +48,8 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
   useEffect(() => {
     setIsButtonLoading(true);
     setIsComplete(false);
+    setRowSelection({});
+    setIsAutoREdeemChecked(false);
   }, [groupId]);
 
   useEffect(() => {

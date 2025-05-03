@@ -7,7 +7,7 @@ import { GroupType } from "@/type/group-type";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { columns } from "./columns";
 
 const apiClient = new ApiClient();
@@ -24,13 +24,13 @@ const GroupList = () => {
     queryFn: () => apiClient.getGroups(),
   });
 
-  useEffect(() => {
-    if (data.length === 0) return;
-    const index = data?.findIndex(
-      (event) => event.contactId === selectedGroupId
-    ) as number;
-    setRowSelection({ [index]: true });
-  }, [data, selectedGroupId]);
+  // useEffect(() => {
+  //   if (data.length === 0) return;
+  //   const index = data?.findIndex(
+  //     (event) => event.contactId === selectedGroupId
+  //   ) as number;
+  //   setRowSelection({ [index]: true });
+  // }, [data, selectedGroupId]);
 
   const handleRowClick = (group: GroupType) => {
     selectGroup(group);

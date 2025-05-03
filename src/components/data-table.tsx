@@ -33,6 +33,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
+
   emptyDataMessage,
   rowSelection = {},
   onRowSelectionChange,
@@ -43,6 +44,7 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+
     enableRowSelection,
     enableMultiRowSelection,
     getCoreRowModel: getCoreRowModel(),
