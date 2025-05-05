@@ -44,7 +44,6 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
-
     enableRowSelection,
     enableMultiRowSelection,
     getCoreRowModel: getCoreRowModel(),

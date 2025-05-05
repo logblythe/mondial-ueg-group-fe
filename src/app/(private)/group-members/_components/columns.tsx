@@ -27,24 +27,16 @@ export const columns: ColumnDef<GroupMember>[] = [
         />
       );
     },
-
     cell: ({ row }) => {
-      const isSelectable =
-        !row.original.activationCodeFormatted &&
-        row.original.typeForVoucher != null &&
-        row.original.remarks.length === 0 &&
-        row.original.paymentStatus != "CANCELED" &&
-        row.original.paymentStatus != "CANCELED_GROUP_INVENTORY";
-
-      if (!isSelectable) return null;
-
-      return (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          disabled={!isSelectable}
-        />
-      );
+      if (row.getCanSelect()) {
+        return (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+          />
+        );
+      }
+      return null;
     },
   },
   {

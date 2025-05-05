@@ -167,10 +167,6 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     },
   });
 
-  const handleButtonRefresh = () => {
-    groupMembersQuery.refetch();
-    isLoading;
-  };
   const onSubmit = (groupMembers: GroupMember[]) => {
     setIsComplete(false);
     if (isAutoRedeemChecked) {
@@ -231,7 +227,13 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
         enableRowSelection={(row) => {
-          return Boolean(row.original.primaryEmail);
+          const isSelectable =
+            !row.original.activationCodeFormatted &&
+            row.original.typeForVoucher != null &&
+            row.original.remarks.length === 0 &&
+            row.original.paymentStatus != "CANCELED" &&
+            row.original.paymentStatus != "CANCELED_GROUP_INVENTORY";
+          return isSelectable;
         }}
         enableMultiRowSelection
       />
