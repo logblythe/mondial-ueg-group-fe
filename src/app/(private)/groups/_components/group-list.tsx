@@ -24,14 +24,6 @@ const GroupList = () => {
     queryFn: () => apiClient.getGroups(),
   });
 
-  // useEffect(() => {
-  //   if (data.length === 0) return;
-  //   const index = data?.findIndex(
-  //     (event) => event.contactId === selectedGroupId
-  //   ) as number;
-  //   setRowSelection({ [index]: true });
-  // }, [data, selectedGroupId]);
-
   const handleRowClick = (group: GroupType) => {
     selectGroup(group);
     setGroupName(group.name);

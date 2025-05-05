@@ -167,6 +167,10 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     },
   });
 
+  const handleButtonRefresh = () => {
+    groupMembersQuery.refetch();
+    isLoading;
+  };
   const onSubmit = (groupMembers: GroupMember[]) => {
     setIsComplete(false);
     if (isAutoRedeemChecked) {
@@ -205,7 +209,19 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
           </h3>
           {groupMembersQuery.isLoading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
-          ) : null}
+          ) : (
+            <Button
+              size={"sm"}
+              variant={"outline"}
+              onClick={() => groupMembersQuery.refetch()}
+              className="rounded-xl"
+            >
+              <span>Refresh</span>
+              {groupMembersQuery.isRefetching ? (
+                <Loader2 className="w-4 h-4 animate-spin ml-2" />
+              ) : null}
+            </Button>
+          )}
         </div>
       </div>
       <DataTable
