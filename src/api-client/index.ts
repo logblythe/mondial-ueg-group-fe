@@ -50,7 +50,6 @@ class ApiClient {
   }
 
   public async getGroups(): Promise<GroupType[]> {
-    console.log("we are here");
     return this.httpClient.request<GroupType[]>(apiUrls.groups.get);
   }
 

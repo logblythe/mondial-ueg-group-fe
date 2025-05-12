@@ -19,9 +19,14 @@ const GroupList = () => {
 
   const [rowSelection, setRowSelection] = useState({});
   const [groupName, setGroupName] = useState("");
+
   const { data = [], isLoading } = useQuery({
     queryKey: ["groups"],
-    queryFn: () => apiClient.getGroups(),
+    queryFn: async () => {
+      const groups = await apiClient.getGroups();
+
+      return groups;
+    },
   });
 
   const handleRowClick = (group: GroupType) => {
@@ -42,7 +47,7 @@ const GroupList = () => {
       </div>
       <DataTable
         columns={columns}
-        data={data}
+        data={data?.slice().sort((a, b) => a.name.localeCompare(b.name))}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
         onRowClick={handleRowClick}

@@ -218,12 +218,48 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
               ) : null}
             </Button>
           )}
+
+          <div className="flex flex-row justify-center pt-4">
+            <Button
+              className="px-8"
+              disabled={
+                Object.keys(rowSelection).length <= 0 || isButtonLoading
+              }
+              onClick={handleOnClick}
+            >
+              {isButtonLoading ? (
+                <Loader2 className="w-3 h-3 animate-spin mr-2" />
+              ) : null}
+              Generate Voucher
+            </Button>
+          </div>
+
+          <div className="flex flex-row justify-end gap-2 items-center pt-2">
+            <Checkbox
+              checked={isAutoRedeemChecked}
+              disabled={!hasOpenId}
+              onCheckedChange={(e) => {
+                setIsAutoREdeemChecked(e as boolean);
+              }}
+            />
+            <label
+              htmlFor="terms"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Auto-redeem the generated voucher?
+            </label>
+          </div>
         </div>
       </div>
       <DataTable
         columns={columns}
         emptyDataMessage={<EmptyList>No group members found</EmptyList>}
-        data={groupMembersQuery.data || []}
+        data={
+          groupMembersQuery.data?.slice().sort((a, b) => {
+            if (a.id !== b.id) return a.id.localeCompare(b.id);
+            return a.lastName.localeCompare(b.lastName);
+          }) || []
+        }
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
         enableRowSelection={(row) => {
@@ -237,34 +273,6 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
         }}
         enableMultiRowSelection
       />
-      <div className="flex flex-row justify-end pt-4">
-        <Button
-          className="px-8"
-          disabled={Object.keys(rowSelection).length <= 0 || isButtonLoading}
-          onClick={handleOnClick}
-        >
-          {isButtonLoading ? (
-            <Loader2 className="w-4 h-4 animate-spin mr-2" />
-          ) : null}
-          Generate Voucher
-        </Button>
-      </div>
-
-      <div className="flex flex-row justify-end gap-2 items-center pt-2">
-        <Checkbox
-          checked={isAutoRedeemChecked}
-          disabled={!hasOpenId}
-          onCheckedChange={(e) => {
-            setIsAutoREdeemChecked(e as boolean);
-          }}
-        />
-        <label
-          htmlFor="terms"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Auto-redeem the generated voucher?
-        </label>
-      </div>
     </div>
   );
 };

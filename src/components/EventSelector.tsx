@@ -37,14 +37,11 @@ export function GroupSelector() {
         if (group) {
           selectGroup(group);
           const params = new URLSearchParams(searchParams);
-          params.set("groupId", group.contactId); // Replace eventId
+          params.set("groupId", group.contactId);
           router.push(`${pathname}?${params.toString()}`);
         }
       }}
       value={selectedGroupId}
-
-      //TODO: conditionally disable the select if the pathname is
-      // disabled={RULES_DETAILS_ROUTE_REGEX.test(pathname)}
     >
       <SelectTrigger
         id="select-event-trigger"
@@ -55,13 +52,16 @@ export function GroupSelector() {
       <SelectContent>
         <SelectGroup>
           <SelectLabel>Events</SelectLabel>
-          {data?.map((group) => {
-            return (
-              <SelectItem key={group.contactId} value={group.contactId}>
-                {group.name}
-              </SelectItem>
-            );
-          })}
+          {data
+            ?.slice()
+            .sort((a, b) => a.name.localeCompare(b.name))
+            ?.map((group) => {
+              return (
+                <SelectItem key={group.contactId} value={group.contactId}>
+                  {group.name}
+                </SelectItem>
+              );
+            })}
         </SelectGroup>
       </SelectContent>
     </Select>
