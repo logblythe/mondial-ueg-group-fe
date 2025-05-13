@@ -42,26 +42,18 @@ const Navbar = (props: Props) => {
       <div className="flex-grow"></div>
 
       <GroupSelector />
-
-      {isLoading ? (
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={onSubmit}
-          className="animate-spin ml-5 size-6"
-        >
-          <RefreshCcw />
-        </Button>
-      ) : (
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={onSubmit}
-          className="ml-5 size-6"
-        >
-          <RefreshCcw />
-        </Button>
-      )}
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={onSubmit}
+        className="ml-4 "
+      >
+        <RefreshCcw
+          className={`h-4 w-4 animate-spin ${
+            isLoading ? "animate-spin" : "animate-none"
+          }`}
+        />
+      </Button>
     </nav>
   );
 };
