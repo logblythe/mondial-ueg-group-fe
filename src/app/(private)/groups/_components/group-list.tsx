@@ -47,7 +47,7 @@ const GroupList = () => {
       </div>
       <DataTable
         columns={columns}
-        data={data?.slice().sort((a, b) => a.name.localeCompare(b.name))}
+        data={data?.sort((a, b) => a.name.localeCompare(b.name))}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
         onRowClick={handleRowClick}

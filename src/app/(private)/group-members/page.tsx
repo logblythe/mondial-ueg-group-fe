@@ -7,7 +7,7 @@ import GroupMembersList from "./_components/group-member-list";
 const apiClient = new ApiClient();
 
 export const metadata: Metadata = {
-  title: "Eurospine | Groups",
+  title: "UEG | Members",
   description: "View all groups",
 };
 

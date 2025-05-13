@@ -5,6 +5,15 @@ import EmptyList from "@/components/EmptyList";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useGroupStore } from "@/store/group-store";
 import {
   AutoRedeemVoucher,
@@ -28,6 +37,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const [isAutoRedeemChecked, setIsAutoREdeemChecked] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const groupMembersQuery = useQuery({
     queryKey: ["groups", groupId, "members"],
@@ -198,68 +208,98 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
 
   return (
     <div className="container mx-auto py-10 space-y-2">
-      <div className="flex flex-row  justify-between items-end">
-        <div className="flex flex-row space-x-4 items-center">
-          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-            <span>Group Members</span>
-          </h3>
-          {groupMembersQuery.isLoading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Button
-              size={"sm"}
-              variant={"outline"}
-              onClick={() => groupMembersQuery.refetch()}
-              className="rounded-xl"
-            >
-              <span>Refresh</span>
-              {groupMembersQuery.isRefetching ? (
-                <Loader2 className="w-4 h-4 animate-spin ml-2" />
-              ) : null}
-            </Button>
-          )}
-
-          <div className="flex flex-row justify-center pt-4">
-            <Button
-              className="px-8"
-              disabled={
-                Object.keys(rowSelection).length <= 0 || isButtonLoading
-              }
-              onClick={handleOnClick}
-            >
-              {isButtonLoading ? (
-                <Loader2 className="w-3 h-3 animate-spin mr-2" />
-              ) : null}
-              Generate Voucher
-            </Button>
+      <div className="flex flex-row   items-center">
+        <div className="flex  justify-between w-full p-4 items-center">
+          <div className="flex items-center flex-row space-x-4">
+            <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+              <span>Group Members</span>
+            </h3>
+            {groupMembersQuery.isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin ml-2" />
+            ) : (
+              <Button
+                size={"sm"}
+                variant={"outline"}
+                onClick={() => groupMembersQuery.refetch()}
+                className="rounded-xl"
+              >
+                <span>Refresh</span>
+                {groupMembersQuery.isRefetching ? (
+                  <Loader2 className="w-4 h-4 animate-spin ml-2" />
+                ) : null}
+              </Button>
+            )}
           </div>
+          <div className="flex flex-row item-center space-x-4">
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  size={"sm"}
+                  className="px-8"
+                  disabled={
+                    Object.keys(rowSelection).length <= 0 || isButtonLoading
+                  }
+                  // onClick={handleOnClick}
+                >
+                  {isButtonLoading ? (
+                    <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                  ) : null}
+                  Generate Voucher
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Confirm Generation</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to generate voucher(s) for the
+                    selected group members?
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      handleOnClick();
+                      setIsDialogOpen(false);
+                    }}
+                    disabled={isButtonLoading}
+                  >
+                    {isButtonLoading && (
+                      <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                    )}
+                    Confirm
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
-          <div className="flex flex-row justify-end gap-2 items-center pt-2">
-            <Checkbox
-              checked={isAutoRedeemChecked}
-              disabled={!hasOpenId}
-              onCheckedChange={(e) => {
-                setIsAutoREdeemChecked(e as boolean);
-              }}
-            />
-            <label
-              htmlFor="terms"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Auto-redeem the generated voucher?
-            </label>
+            <div className=" space-x-2">
+              <Checkbox
+                checked={isAutoRedeemChecked}
+                disabled={!hasOpenId}
+                onCheckedChange={(e) => {
+                  setIsAutoREdeemChecked(e as boolean);
+                }}
+              />
+              <label
+                htmlFor="terms"
+                className="text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Auto-redeem the generated voucher?
+              </label>
+            </div>
           </div>
         </div>
       </div>
       <DataTable
         columns={columns}
         emptyDataMessage={<EmptyList>No group members found</EmptyList>}
-        data={
-          groupMembersQuery.data?.slice().sort((a, b) => {
-            if (a.id !== b.id) return a.id.localeCompare(b.id);
-            return a.lastName.localeCompare(b.lastName);
-          }) || []
-        }
+        data={groupMembersQuery.data || []}
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
         enableRowSelection={(row) => {

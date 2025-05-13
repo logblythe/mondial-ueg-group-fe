@@ -7,7 +7,7 @@ import GroupList from "./_components/group-list";
 const questionsClient = new ApiClient();
 
 export const metadata: Metadata = {
-  title: "Eurospine | Groups",
+  title: "UEG | Groups",
   description: "View all groups",
 };
 

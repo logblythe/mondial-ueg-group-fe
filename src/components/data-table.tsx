@@ -2,11 +2,13 @@
 
 import {
   ColumnDef,
-  flexRender,
-  getCoreRowModel,
   OnChangeFn,
   Row,
   RowSelectionState,
+  SortingState,
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -18,6 +20,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { MoveDown, MoveUp } from "lucide-react";
+import React from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -41,15 +45,21 @@ export function DataTable<TData, TValue>({
   enableRowSelection = true,
   enableMultiRowSelection = false,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+
   const table = useReactTable({
     data,
     columns,
     enableRowSelection,
     enableMultiRowSelection,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     onRowSelectionChange: onRowSelectionChange,
+    onSortingChange: setSorting,
+
     state: {
       rowSelection,
+      sorting,
     },
   });
 
@@ -62,12 +72,39 @@ export function DataTable<TData, TValue>({
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
+                    {header.isPlaceholder ? null : (
+                      <div
+                        className={
+                          header.column.getCanSort()
+                            ? "cursor-pointer select-none flex items-center gap-1"
+                            : ""
+                        }
+                        onClick={header.column.getToggleSortingHandler()}
+                        title={
+                          header.column.getCanSort()
+                            ? header.column.getNextSortingOrder() === "asc"
+                              ? "Sort ascending"
+                              : header.column.getNextSortingOrder() === "desc"
+                              ? "Sort descending"
+                              : "Clear sort"
+                            : undefined
+                        }
+                      >
+                        {flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
+                        {["internalNumber", "lastName"].includes(
+                          (header.column.columnDef as any).accessorKey
+                        ) &&
+                          {
+                            asc: <MoveUp className="w-4 h-4" />,
+                            desc: <MoveDown className="w-4 h-4" />,
+                            false: null,
+                            undefined: null,
+                          }[(header.column.getIsSorted() as string) || "false"]}
+                      </div>
+                    )}
                   </TableHead>
                 );
               })}

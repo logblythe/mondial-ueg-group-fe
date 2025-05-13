@@ -42,28 +42,34 @@ export const columns: ColumnDef<GroupMember>[] = [
   {
     accessorKey: "internalNumber",
     header: "Id",
+    enableSorting: true,
   },
   {
     accessorKey: "firstName",
     header: "First Name",
+    enableSorting: false,
   },
   {
     accessorKey: "lastName",
     header: "Last Name",
+    enableSorting: true,
   },
   {
     accessorKey: "activationCodeFormatted",
     header: "Code Formatted",
+    enableSorting: false,
   },
   {
     accessorKey: "openID",
     header: "Open Id",
+    enableSorting: false,
   },
   {
     accessorKey: "remarks",
     header: "Remarks",
     cell: ({ row }) => {
       const remarks = row.getValue("remarks") as string[];
+
       return (
         <ul className="flex flex-col">
           {remarks?.map((remark, index) => (
