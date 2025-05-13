@@ -1,12 +1,35 @@
+import { Button } from "@/components/ui/button";
 import classNames from "clsx";
-import { Menu } from "lucide-react";
+import { RefreshCcw } from "lucide-react";
 import { GroupSelector } from "./EventSelector";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import ApiClient from "@/api-client";
 
 type Props = {
   onMenuButtonClick(): void;
 };
 
+const apiClient = new ApiClient();
+
 const Navbar = (props: Props) => {
+  const queryClient = useQueryClient();
+  const RefreshCache = useMutation({
+    mutationFn: () => apiClient.getRefreshCache(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["groups"] });
+      console.log("on success");
+    },
+    onError: () => {
+      console.log("on error");
+    },
+  });
+  const isLoading = RefreshCache.isPending;
+
+  function onSubmit() {
+    RefreshCache.mutate();
+  }
   return (
     <nav
       className={classNames({
@@ -17,10 +40,28 @@ const Navbar = (props: Props) => {
     >
       <p className="font-bold text-xs md:text-sm">Group Portal</p>
       <div className="flex-grow"></div>
+
       <GroupSelector />
-      <button className="md:hidden ml-4" onClick={props.onMenuButtonClick}>
-        <Menu className="h-6 w-6" />
-      </button>
+
+      {isLoading ? (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onSubmit}
+          className="animate-spin ml-5 size-6"
+        >
+          <RefreshCcw />
+        </Button>
+      ) : (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onSubmit}
+          className="ml-5 size-6"
+        >
+          <RefreshCcw />
+        </Button>
+      )}
     </nav>
   );
 };

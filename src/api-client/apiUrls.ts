@@ -6,5 +6,6 @@ export const apiUrls = {
     get: "/api/v1/groups",
     sync: "/groups/sync/:id",
     syncStatus: "/groups/sync/:id/status",
+    refresh_cache: "/api/v1/groups/refresh-cache",
   },
 };
