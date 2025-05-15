@@ -26,6 +26,7 @@ const Navbar = (props: Props) => {
     },
   });
   const isLoading = RefreshCache.isPending;
+  console.log("the refresh is loading", isLoading);
 
   function onSubmit() {
     RefreshCache.mutate();
@@ -49,9 +50,7 @@ const Navbar = (props: Props) => {
         className="ml-4 "
       >
         <RefreshCcw
-          className={`h-4 w-4 animate-spin ${
-            isLoading ? "animate-spin" : "animate-none"
-          }`}
+          className={`h-4 w-4  ${isLoading ? "animate-spin" : "animate-none"}`}
         />
       </Button>
     </nav>
