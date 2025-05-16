@@ -208,15 +208,16 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
   };
 
   return (
-    <div
-      className={classNames({
-        "bg-white text-zinc-500": true,
-        "flex items-center": true,
-        "w-screen md:w-full sticky z-10 px-8 shadow-sm h-[73px] top-0 ": true,
-      })}
-    >
+    <div className="container mx-auto py-10 space-y-2">
       <div className="flex flex-row   items-center">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div
+          className={classNames({
+            "bg-white text-zinc-500": true,
+            "flex items-center": true,
+            "w-screen md:w-full sticky z-10 px-8 shadow-sm h-[73px] top-0 ":
+              true,
+          })}
+        >
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
             <h3 className="text-xl md:text-2xl font-semibold tracking-tight">
               <span>Group Members</span>
