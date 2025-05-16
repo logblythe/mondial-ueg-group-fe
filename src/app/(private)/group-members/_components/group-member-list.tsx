@@ -25,7 +25,6 @@ import {
   Voucher,
 } from "@/type/voucher-generation-payload";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import classNames from "clsx";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { columns } from "./columns";
@@ -209,16 +208,9 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
 
   return (
     <div className="container mx-auto py-10 space-y-2">
-      <div className="flex flex-row   items-center">
-        <div
-          className={classNames({
-            "bg-white text-zinc-500": true,
-            "flex items-center": true,
-            "w-screen md:w-full sticky z-10 px-8 shadow-sm h-[73px] top-0 ":
-              true,
-          })}
-        >
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+      <div className="flex flex-row  md:justify-between items-center">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
             <h3 className="text-xl md:text-2xl font-semibold tracking-tight">
               <span>Group Members</span>
             </h3>
@@ -238,7 +230,8 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
               </Button>
             )}
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+
+          <div className="flex flex-col sm:flex-row items-center gap-3">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button
@@ -247,11 +240,10 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
                   disabled={
                     Object.keys(rowSelection).length <= 0 || isButtonLoading
                   }
-                  // onClick={handleOnClick}
                 >
-                  {isButtonLoading ? (
+                  {isButtonLoading && (
                     <Loader2 className="w-3 h-3 animate-spin mr-2" />
-                  ) : null}
+                  )}
                   Generate Voucher
                 </Button>
               </DialogTrigger>
@@ -286,7 +278,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
               </DialogContent>
             </Dialog>
 
-            <div className=" space-x-2">
+            <div className="flex items-center space-x-2">
               <Checkbox
                 checked={isAutoRedeemChecked}
                 disabled={!hasOpenId}
@@ -296,7 +288,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
               />
               <label
                 htmlFor="terms"
-                className="text-sm font-medium  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 Auto-redeem the generated voucher?
               </label>
@@ -304,6 +296,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
           </div>
         </div>
       </div>
+
       <DataTable
         columns={columns}
         emptyDataMessage={<EmptyList>No group members found</EmptyList>}
