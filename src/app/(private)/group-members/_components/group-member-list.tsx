@@ -25,6 +25,7 @@ import {
   Voucher,
 } from "@/type/voucher-generation-payload";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import classNames from "clsx";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { columns } from "./columns";
@@ -207,11 +208,17 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
   };
 
   return (
-    <div className="container mx-auto py-10 space-y-2">
+    <div
+      className={classNames({
+        "bg-white text-zinc-500": true,
+        "flex items-center": true,
+        "w-screen md:w-full sticky z-10 px-8 shadow-sm h-[73px] top-0 ": true,
+      })}
+    >
       <div className="flex flex-row   items-center">
-        <div className="flex  justify-between w-full p-4 items-center">
-          <div className="flex items-center flex-row space-x-4">
-            <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+            <h3 className="text-xl md:text-2xl font-semibold tracking-tight">
               <span>Group Members</span>
             </h3>
             {groupMembersQuery.isLoading ? (
@@ -230,7 +237,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
               </Button>
             )}
           </div>
-          <div className="flex flex-row item-center space-x-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button
