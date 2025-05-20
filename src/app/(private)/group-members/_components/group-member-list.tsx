@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "@/components/ui/use-toast";
 import { useGroupStore } from "@/store/group-store";
 import {
   AutoRedeemVoucher,
@@ -74,19 +75,25 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     const status = groupStatusData.status;
 
     if (
-      status === "COMPLETED" ||
-      status === "NOT_FOUND" ||
-      status === "FAILED" ||
-      status.includes("FAILED")
+      status.includes("FAILED") ||
+      status.includes("COMPLETED") ||
+      status.includes("NOT_FOUND")
     ) {
-      setIsComplete(true);
+      if (status.includes("FAILED"))
+        toast({
+          title: "Voucher Generation Failed",
+          description: status,
+          variant: "destructive",
+          duration: 5000,
+        });
       groupMembersQuery.refetch();
+      setIsComplete(true);
       setIsButtonLoading(false);
     } else {
       setIsButtonLoading(true);
       setIsComplete(false);
     }
-  }, [isLoading, isFetching, groupStatusData]);
+  }, [isLoading, isFetching, groupStatusData, groupMembersQuery]);
 
   const { selectedGroup } = useGroupStore();
 
