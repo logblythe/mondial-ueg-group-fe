@@ -13,7 +13,7 @@ import {
 import { useGroupStore } from "@/store/group-store";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const apiClient = new ApiClient();
 
@@ -21,6 +21,7 @@ export function GroupSelector() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+
   const [loadingGroups, setLoadingGroups] = useState(false);
 
   const { data } = useQuery({
@@ -28,20 +29,26 @@ export function GroupSelector() {
     queryFn: () => apiClient.getGroups(),
   });
 
-  const { selectGroup, selectedGroupId } = useGroupStore();
+  const { selectGroup, selectedGroupId, clearSelectedGroup } = useGroupStore();
+
+  useEffect(() => {
+    if (pathname !== "/group-members") {
+      clearSelectedGroup();
+    }
+  }, [pathname, clearSelectedGroup]);
+
+  const handleGroupSelect = (id: string) => {
+    const group = data?.find((group) => group.contactId === id);
+    if (group) {
+      selectGroup(group);
+      router.push(`/group-members?groupId=${group.contactId}`);
+    }
+  };
 
   return (
     <Select
-      onValueChange={(id) => {
-        const group = data?.find((group) => group.contactId === id);
-        if (group) {
-          selectGroup(group);
-          const params = new URLSearchParams(searchParams);
-          params.set("groupId", group.contactId);
-          router.push(`${pathname}?${params.toString()}`);
-        }
-      }}
-      value={selectedGroupId}
+      onValueChange={handleGroupSelect}
+      value={selectedGroupId || undefined}
     >
       <SelectTrigger
         id="select-event-trigger"

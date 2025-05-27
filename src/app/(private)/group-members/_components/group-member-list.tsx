@@ -86,7 +86,9 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
           variant: "destructive",
           duration: 5000,
         });
-      groupMembersQuery.refetch();
+      if (!groupMembersQuery.data || groupMembersQuery.isError) {
+        groupMembersQuery.refetch();
+      }
       setIsComplete(true);
       setIsButtonLoading(false);
     } else {
