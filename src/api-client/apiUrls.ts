@@ -7,5 +7,6 @@ export const apiUrls = {
     sync: "/groups/sync/:id",
     syncStatus: "/groups/sync/:id/status",
     refresh_cache: "/api/v1/groups/refresh-cache",
+    generate_voucher: "/api/v1/groups/:id/generate-vouchers-with-auto-redeem",
   },
 };

@@ -89,7 +89,8 @@ class ApiClient {
     );
   }
 
-  public async generateAutoReedem(
+  //@Deprecated("Use generateWithAutoRedeem instead")
+  public async generateAutoRedeem(
     groupId: string,
     payload: GroupAutoRedeemPayload
   ): Promise<AutoRedeemVoucher[]> {
@@ -101,6 +102,17 @@ class ApiClient {
     );
   }
 
+  public async generateWithAutoRedeem(
+    groupId: string,
+    payload: GroupAutoRedeemPayload
+  ): Promise<AutoRedeemVoucher[]> {
+    return this.httpClient.request<AutoRedeemVoucher[]>(
+      `${apiUrls.groups.generate_voucher}`.replace(":id", groupId),
+      "POST",
+      {},
+      payload
+    );
+  }
   public async syncGroupMembers(
     groupId: string,
     payload: SyncGroupPayload

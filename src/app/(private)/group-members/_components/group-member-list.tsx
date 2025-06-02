@@ -7,18 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/components/ui/use-toast";
 import { useGroupStore } from "@/store/group-store";
-import {
-  AutoRedeemVoucher,
-  GroupAutoRedeemPayload,
-} from "@/type/group-member-payload";
+import { GroupAutoRedeemPayload } from "@/type/group-member-payload";
 import { GroupMember } from "@/type/group-type";
-import {
-  GroupVoucherGenerationPayload,
-  Voucher,
-} from "@/type/voucher-generation-payload";
+import { GroupVoucherGenerationPayload } from "@/type/voucher-generation-payload";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import {
+  createAutoRedeemPayload,
+  createVoucherGenerationPayload,
+} from "../_utils/generate-payload";
 import { columns } from "./columns";
 import { GenerateVoucherButton } from "./generate-voucher-button";
 
@@ -44,7 +42,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
   });
 
   useEffect(() => {
-    setIsGeneratingVoucher(true);
+    setIsGeneratingVoucher(false);
     setIsComplete(false);
     setRowSelection({});
     setIsAutoRedeemChecked(false);
@@ -66,67 +64,27 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
       status.includes("COMPLETED") ||
       status.includes("NOT_FOUND")
     ) {
-      if (status.includes("FAILED"))
+      if (status.includes("FAILED")) {
         toast({
           title: "Voucher Generation Failed",
           description: status,
           variant: "destructive",
           duration: 5000,
         });
+      }
       setIsComplete(true);
       setIsGeneratingVoucher(false);
+      setRowSelection({});
+      setIsAutoRedeemChecked(false);
     } else {
       setIsComplete(false);
       setIsGeneratingVoucher(true);
+      setRowSelection({});
+      setIsAutoRedeemChecked(false);
     }
   }, [groupStatusQuery?.data?.status]);
 
   const { selectedGroup } = useGroupStore();
-
-  const createVoucherGenerationPayload = (
-    groupMembers: GroupMember[]
-  ): GroupVoucherGenerationPayload => {
-    const groupName = selectedGroup?.name || "Default Group";
-
-    const generateVoucher: Voucher[] = groupMembers.map((member) => {
-      return {
-        first_name: member.firstName,
-        last_name: member.lastName,
-        email: member.primaryEmail,
-        contactId: member.id,
-        role: "DELEGATE",
-        groupName: groupName,
-        type: member.typeForVoucher,
-      };
-    });
-    const payload = { vouchers: generateVoucher };
-    return payload;
-  };
-
-  const createAutoRedeemPayload = (
-    groupMembers: GroupMember[]
-  ): GroupAutoRedeemPayload => {
-    if (!selectedGroup) {
-      return { vouchers: [] };
-    }
-    const groupName = selectedGroup.name;
-    const generateAutoRedeem: AutoRedeemVoucher[] = groupMembers.map(
-      (member) => {
-        return {
-          first_name: member.firstName,
-          last_name: member.lastName,
-          email: member.primaryEmail,
-          contactId: member.id,
-          role: "DELEGATE",
-          groupName: groupName,
-          type: member.typeForVoucher,
-          openID: member.openID,
-        };
-      }
-    );
-    const payload = { vouchers: generateAutoRedeem };
-    return payload;
-  };
 
   const voucherGenerateMutation = useMutation({
     mutationFn: ({
@@ -154,7 +112,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     }: {
       groupId: string;
       payload: GroupAutoRedeemPayload;
-    }) => apiClient.generateAutoReedem(groupId, payload),
+    }) => apiClient.generateWithAutoRedeem(groupId, payload),
     onSuccess: () => groupStatusQuery.refetch(),
     onError: (error: any) => {
       console.error("Error generating voucher", error);
@@ -168,8 +126,12 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
 
   const onSubmit = (groupMembers: GroupMember[]) => {
     setIsComplete(false);
+    setIsGeneratingVoucher(true);
     if (isAutoRedeemChecked) {
-      const autoRedeemPayload = createAutoRedeemPayload(groupMembers);
+      const autoRedeemPayload = createAutoRedeemPayload(
+        selectedGroup,
+        groupMembers
+      );
       if (autoRedeemPayload.vouchers.length > 0) {
         autoRedeemGenerateMutation.mutate({
           groupId,
@@ -177,7 +139,10 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
         });
       }
     } else {
-      const voucherPayload = createVoucherGenerationPayload(groupMembers);
+      const voucherPayload = createVoucherGenerationPayload(
+        selectedGroup,
+        groupMembers
+      );
       if (voucherPayload.vouchers.length > 0) {
         voucherGenerateMutation.mutate({ groupId, payload: voucherPayload });
       }
