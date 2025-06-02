@@ -5,15 +5,6 @@ import EmptyList from "@/components/EmptyList";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
 import { useGroupStore } from "@/store/group-store";
 import {
@@ -29,6 +20,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { columns } from "./columns";
+import { GenerateVoucherButton } from "./generate-voucher-button";
 
 const apiClient = new ApiClient();
 
@@ -192,7 +184,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     }
   };
 
-  const handleOnClick = () => {
+  const handleOnGenerate = () => {
     const selectedRows = Object.keys(rowSelection).filter(
       (key) => rowSelection[key]
     );
@@ -229,50 +221,13 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
           )}
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-3">
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                size={"sm"}
-                className="px-4"
-                disabled={disableVoucherGeneration}
-              >
-                {isGeneratingVoucher && (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                )}
-                Generate Voucher
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Confirm Generation</DialogTitle>
-                <DialogDescription>
-                  Are you sure you want to generate voucher(s) for the selected
-                  group members?
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    handleOnClick();
-                    setIsDialogOpen(false);
-                  }}
-                  disabled={isGeneratingVoucher}
-                >
-                  {isGeneratingVoucher && (
-                    <Loader2 className="w-3 h-3 animate-spin mr-2" />
-                  )}
-                  Confirm
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
+          <GenerateVoucherButton
+            onConfirm={handleOnGenerate}
+            isGeneratingVoucher={isGeneratingVoucher}
+            disableVoucherGeneration={disableVoucherGeneration}
+            isDialogOpen={isDialogOpen}
+            setIsDialogOpen={setIsDialogOpen}
+          />
           <div className="flex items-center space-x-2">
             <Checkbox
               checked={isAutoRedeemChecked}
