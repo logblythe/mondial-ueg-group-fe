@@ -36,8 +36,8 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
   const [hasOpenId, setHasOpenId] = useState(false);
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
-  const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const [isAutoRedeemChecked, setIsAutoREdeemChecked] = useState(false);
+  const [isGeneratingVoucher, setIsGeneratingVoucher] = useState(false);
+  const [isAutoRedeemChecked, setIsAutoRedeemChecked] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const groupMembersQuery = useQuery({
@@ -45,22 +45,17 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     queryFn: () => apiClient.getGroupMembers(groupId),
   });
 
-  const {
-    data: groupStatusData,
-    isLoading,
-    isFetching,
-    refetch: refetchVoucherStatus,
-  } = useQuery({
+  const groupStatusQuery = useQuery({
     queryKey: ["groups", groupId, "status"],
     queryFn: () => apiClient.generateVoucherStatus(groupId),
     refetchInterval: isComplete ? false : 3000,
   });
 
   useEffect(() => {
-    setIsButtonLoading(true);
+    setIsGeneratingVoucher(true);
     setIsComplete(false);
     setRowSelection({});
-    setIsAutoREdeemChecked(false);
+    setIsAutoRedeemChecked(false);
   }, [groupId]);
 
   useEffect(() => {
@@ -70,9 +65,9 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
   }, [groupMembersQuery.data]);
 
   useEffect(() => {
-    if (!groupStatusData?.status) return;
+    if (!groupStatusQuery?.data?.status) return;
 
-    const status = groupStatusData.status;
+    const status = groupStatusQuery.data.status;
 
     if (
       status.includes("FAILED") ||
@@ -86,14 +81,13 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
           variant: "destructive",
           duration: 5000,
         });
-      groupMembersQuery.refetch();
       setIsComplete(true);
-      setIsButtonLoading(false);
+      setIsGeneratingVoucher(false);
     } else {
-      setIsButtonLoading(true);
       setIsComplete(false);
+      setIsGeneratingVoucher(true);
     }
-  }, [isLoading, isFetching, groupStatusData, groupMembersQuery]);
+  }, [groupStatusQuery?.data?.status]);
 
   const { selectedGroup } = useGroupStore();
 
@@ -150,9 +144,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
       groupId: string;
       payload: GroupVoucherGenerationPayload;
     }) => apiClient.generateVoucher(groupId, payload),
-    onSuccess: (data) => {
-      refetchVoucherStatus();
-    },
+    onSuccess: () => groupStatusQuery.refetch(),
     onError: (error: any) => {
       console.error("Error generating voucher", error);
       if (error.response) {
@@ -171,9 +163,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
       groupId: string;
       payload: GroupAutoRedeemPayload;
     }) => apiClient.generateAutoReedem(groupId, payload),
-    onSuccess: (data) => {
-      refetchVoucherStatus();
-    },
+    onSuccess: () => groupStatusQuery.refetch(),
     onError: (error: any) => {
       console.error("Error generating voucher", error);
       if (error.response) {
@@ -213,93 +203,90 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     onSubmit(selectedGroupMembers);
   };
 
+  const disableVoucherGeneration =
+    Object.keys(rowSelection).length <= 0 || isGeneratingVoucher;
+
   return (
     <div className="container mx-auto py-10 space-y-2">
-      <div className="flex flex-row  md:justify-between items-center">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <h3 className="text-xl md:text-2xl font-semibold tracking-tight">
-              <span>Group Members</span>
-            </h3>
-            {groupMembersQuery.isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin ml-2" />
-            ) : (
+      <div className="flex flex-col md:flex-row  md:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <h3 className="text-xl md:text-2xl font-semibold tracking-tight">
+            <span>Group Members</span>
+          </h3>
+          {groupMembersQuery.isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin ml-2" />
+          ) : (
+            <Button
+              size={"sm"}
+              variant={"outline"}
+              onClick={() => groupMembersQuery.refetch()}
+            >
+              <span>Refresh</span>
+              {groupMembersQuery.isRefetching ? (
+                <Loader2 className="w-4 h-4 animate-spin ml-2" />
+              ) : null}
+            </Button>
+          )}
+        </div>
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
               <Button
                 size={"sm"}
-                variant={"outline"}
-                onClick={() => groupMembersQuery.refetch()}
-                className="rounded-xl"
+                className="px-4"
+                disabled={disableVoucherGeneration}
               >
-                <span>Refresh</span>
-                {groupMembersQuery.isRefetching ? (
-                  <Loader2 className="w-4 h-4 animate-spin ml-2" />
-                ) : null}
+                {isGeneratingVoucher && (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                )}
+                Generate Voucher
               </Button>
-            )}
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Confirm Generation</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to generate voucher(s) for the selected
+                  group members?
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
                 <Button
-                  size={"sm"}
-                  className="px-8"
-                  disabled={
-                    Object.keys(rowSelection).length <= 0 || isButtonLoading
-                  }
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
                 >
-                  {isButtonLoading && (
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    handleOnClick();
+                    setIsDialogOpen(false);
+                  }}
+                  disabled={isGeneratingVoucher}
+                >
+                  {isGeneratingVoucher && (
                     <Loader2 className="w-3 h-3 animate-spin mr-2" />
                   )}
-                  Generate Voucher
+                  Confirm
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Confirm Generation</DialogTitle>
-                  <DialogDescription>
-                    Are you sure you want to generate voucher(s) for the
-                    selected group members?
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsDialogOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      handleOnClick();
-                      setIsDialogOpen(false);
-                    }}
-                    disabled={isButtonLoading}
-                  >
-                    {isButtonLoading && (
-                      <Loader2 className="w-3 h-3 animate-spin mr-2" />
-                    )}
-                    Confirm
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                checked={isAutoRedeemChecked}
-                disabled={!hasOpenId}
-                onCheckedChange={(e) => {
-                  setIsAutoREdeemChecked(e as boolean);
-                }}
-              />
-              <label
-                htmlFor="terms"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Auto-redeem the generated voucher?
-              </label>
-            </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              checked={isAutoRedeemChecked}
+              disabled={!hasOpenId}
+              onCheckedChange={(e) => {
+                setIsAutoRedeemChecked(e as boolean);
+              }}
+            />
+            <label
+              htmlFor="terms"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Auto-redeem the generated voucher?
+            </label>
           </div>
         </div>
       </div>
