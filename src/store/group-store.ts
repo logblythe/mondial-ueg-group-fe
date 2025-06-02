@@ -8,6 +8,7 @@ interface GroupState {
   selectGroup: (eventId: GroupType) => void;
   selectedGroupMembers?: GroupMember[];
   setSelectedGroupMembers: (members: GroupMember[]) => void;
+  clearSelectedGroup: () => void;
 }
 
 export const useGroupStore = create<GroupState, any>(
@@ -24,6 +25,11 @@ export const useGroupStore = create<GroupState, any>(
         })),
       setSelectedGroupMembers: (members) =>
         set(() => ({ selectedGroupMembers: members })),
+      clearSelectedGroup: () =>
+        set(() => ({
+          selectedGroup: undefined,
+          selectedGroupId: undefined,
+        })),
     }),
     {
       name: "selected-group-storage",
