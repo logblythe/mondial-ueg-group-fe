@@ -2,7 +2,7 @@
 
 import ApiClient from "@/api-client/";
 import { DataTable } from "@/components/data-table";
-import { useGroupStore } from "@/store/group-store";
+import { UseGroupStore } from "@/store/group-store";
 import { GroupType } from "@/type/group-type";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -15,7 +15,7 @@ const apiClient = new ApiClient();
 const GroupList = () => {
   const router = useRouter();
 
-  const { selectedGroupId, selectGroup } = useGroupStore();
+  const { selectedGroupId, selectGroup } = UseGroupStore();
 
   const [rowSelection, setRowSelection] = useState({});
   const [groupName, setGroupName] = useState("");

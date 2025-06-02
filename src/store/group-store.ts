@@ -11,7 +11,7 @@ interface GroupState {
   clearSelectedGroup: () => void;
 }
 
-export const useGroupStore = create(
+export const UseGroupStore = create(
   persist<GroupState>(
     (set, get) => ({
       selectedGroup: undefined,

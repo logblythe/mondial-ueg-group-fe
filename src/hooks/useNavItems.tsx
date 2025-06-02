@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useGroupStore } from "@/store/group-store";
+import { UseGroupStore } from "@/store/group-store";
 import { CalendarCheck2, LandPlot } from "lucide-react";
 
 export type NavItem = {
@@ -10,7 +10,7 @@ export type NavItem = {
 };
 
 const useNavItems = () => {
-  const { selectedGroupId } = useGroupStore();
+  const { selectedGroupId } = UseGroupStore();
 
   const defaultNavItems: NavItem[] = [
     {

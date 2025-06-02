@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGroupStore } from "@/store/group-store";
+import { UseGroupStore } from "@/store/group-store";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -29,7 +29,7 @@ export function GroupSelector() {
     queryFn: () => apiClient.getGroups(),
   });
 
-  const { selectGroup, selectedGroupId } = useGroupStore();
+  const { selectGroup, selectedGroupId } = UseGroupStore();
 
   const handleGroupSelect = (id: string) => {
     const group = data?.find((group) => group.contactId === id);

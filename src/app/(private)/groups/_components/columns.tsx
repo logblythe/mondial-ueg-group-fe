@@ -1,6 +1,6 @@
 "use client";
 
-import { useGroupStore } from "@/store/group-store";
+import { UseGroupStore } from "@/store/group-store";
 import { GroupType } from "@/type/group-type";
 import { ColumnDef } from "@tanstack/react-table";
 import { Check } from "lucide-react";
@@ -11,7 +11,7 @@ export const columns: ColumnDef<GroupType>[] = [
     header: "",
     cell: ({ row }) => {
       const group = row.original;
-      const { selectedGroupId } = useGroupStore();
+      const { selectedGroupId } = UseGroupStore();
 
       const isSelected = group.contactId === selectedGroupId;
 

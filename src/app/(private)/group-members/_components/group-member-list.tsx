@@ -15,7 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
-import { useGroupStore } from "@/store/group-store";
+import { UseGroupStore } from "@/store/group-store";
 import {
   AutoRedeemVoucher,
   GroupAutoRedeemPayload,
@@ -97,7 +97,7 @@ const GroupMembersList = ({ groupId }: { groupId: string }) => {
     }
   }, [isLoading, isFetching, groupStatusData, groupMembersQuery]);
 
-  const { selectedGroup } = useGroupStore();
+  const { selectedGroup } = UseGroupStore();
 
   const createVoucherGenerationPayload = (
     groupMembers: GroupMember[]
