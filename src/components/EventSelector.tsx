@@ -13,7 +13,7 @@ import {
 import { useGroupStore } from "@/store/group-store";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const apiClient = new ApiClient();
 
@@ -29,13 +29,7 @@ export function GroupSelector() {
     queryFn: () => apiClient.getGroups(),
   });
 
-  const { selectGroup, selectedGroupId, clearSelectedGroup } = useGroupStore();
-
-  useEffect(() => {
-    if (pathname !== "/group-members") {
-      clearSelectedGroup();
-    }
-  }, [pathname, clearSelectedGroup]);
+  const { selectGroup, selectedGroupId } = useGroupStore();
 
   const handleGroupSelect = (id: string) => {
     const group = data?.find((group) => group.contactId === id);

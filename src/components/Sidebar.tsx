@@ -2,6 +2,7 @@
 
 import useNavItems from "@/hooks/useNavItems";
 import { useUser } from "@/hooks/useUser";
+import { useGroupStore } from "@/store/group-store";
 import classNames from "clsx";
 import { ChevronLeftCircleIcon, ChevronRightCircleIcon } from "lucide-react";
 import Link from "next/link";
@@ -25,6 +26,12 @@ const Sidebar = ({
   const navigations = useNavItems();
 
   const { removeUser, user } = useUser();
+  const { clearSelectedGroup } = useGroupStore();
+
+  const handleSignOut = () => {
+    clearSelectedGroup();
+    removeUser();
+  };
 
   const Icon = collapsed ? ChevronRightCircleIcon : ChevronLeftCircleIcon;
 
@@ -118,7 +125,7 @@ const Sidebar = ({
                   href="/"
                   className="text-indigo-200 text-sm"
                   onClick={() => {
-                    removeUser();
+                    handleSignOut();
                   }}
                 >
                   Sign out

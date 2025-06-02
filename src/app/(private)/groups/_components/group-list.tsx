@@ -34,7 +34,7 @@ const GroupList = () => {
     setGroupName(group.name);
     router.push(`/group-members?groupId=${group.contactId}`);
   };
-  console.log("Group Name", groupName);
+
   return (
     <div className="container mx-auto py-10 space-y-2">
       <div className="flex flex-row  justify-between items-end">

@@ -1,20 +1,24 @@
 "use client";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { useGroupStore } from "@/store/group-store";
 import { GroupType } from "@/type/group-type";
 import { ColumnDef } from "@tanstack/react-table";
+import { Check } from "lucide-react";
 
 export const columns: ColumnDef<GroupType>[] = [
   {
     id: "select",
-    cell: ({ row }) =>
-      row.getIsSelected() ? (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ) : null,
+    header: "",
+    cell: ({ row }) => {
+      const group = row.original;
+      const { selectedGroupId } = useGroupStore();
+
+      const isSelected = group.contactId === selectedGroupId;
+
+      return isSelected ? (
+        <Check className="text-green-600 font-bold w-6 h-6" />
+      ) : null;
+    },
   },
   {
     accessorKey: "contactId",
