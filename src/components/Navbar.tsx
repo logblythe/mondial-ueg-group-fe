@@ -1,11 +1,16 @@
-import { Button } from "@/components/ui/button";
-import classNames from "clsx";
-import { RefreshCcw } from "lucide-react";
-import { GroupSelector } from "./EventSelector";
-
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+"use client";
 
 import ApiClient from "@/api-client";
+import { Button } from "@/components/ui/button";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import classNames from "clsx";
+import { RefreshCcw } from "lucide-react";
+import dynamic from "next/dynamic";
+import { GroupSelector } from "./EventSelector";
+
+const ExceptionLogSheet = dynamic(() => import("./exception-logs-sheet"), {
+  ssr: false,
+});
 
 type Props = {
   onMenuButtonClick(): void;
@@ -15,22 +20,18 @@ const apiClient = new ApiClient();
 
 const Navbar = (props: Props) => {
   const queryClient = useQueryClient();
-  const RefreshCache = useMutation({
+  const refreshCache = useMutation({
     mutationFn: () => apiClient.getRefreshCache(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["groups"] });
-      console.log("on success");
-    },
-    onError: () => {
-      console.log("on error");
     },
   });
-  const isLoading = RefreshCache.isPending;
-  console.log("the refresh is loading", isLoading);
+  const isLoading = refreshCache.isPending;
 
   function onSubmit() {
-    RefreshCache.mutate();
+    refreshCache.mutate();
   }
+
   return (
     <nav
       className={classNames({
@@ -43,6 +44,9 @@ const Navbar = (props: Props) => {
       <div className="flex-grow"></div>
 
       <GroupSelector />
+
+      <ExceptionLogSheet />
+
       <Button
         variant="outline"
         size="icon"

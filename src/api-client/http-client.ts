@@ -78,7 +78,6 @@ export default class HttpClient {
     if (method === "DELETE") {
       return response as T;
     }
-    console.log("response", response);
 
     try {
       return await response.json();
