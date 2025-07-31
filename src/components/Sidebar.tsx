@@ -1,13 +1,18 @@
 "use client";
 
+import ApiClient from "@/api-client";
 import useNavItems from "@/hooks/useNavItems";
 import { useUser } from "@/hooks/useUser";
 import { useGroupStore } from "@/store/group-store";
+import { useQuery } from "@tanstack/react-query";
 import classNames from "clsx";
 import { ChevronLeftCircleIcon, ChevronRightCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NavItem, defaultNavItems } from "./defaultNavItems";
+import { Progress } from "./ui/progress";
+
+const apiClient = new ApiClient();
 
 type Props = {
   collapsed: boolean;
@@ -30,6 +35,26 @@ const Sidebar = ({
   const { clearSelectedGroup } = useGroupStore();
 
   const Icon = collapsed ? ChevronRightCircleIcon : ChevronLeftCircleIcon;
+
+  const groupStatusQuery = useQuery({
+    queryKey: ["groups", "status"],
+    queryFn: async () => {
+      const groupStatus = await apiClient.getGroupVoucherGenerationStatus();
+      return groupStatus;
+    },
+    refetchInterval: 5000,
+  });
+
+  const isLoading = groupStatusQuery.isLoading;
+
+  const groupStatus = groupStatusQuery.data;
+
+  const isGroupStatusComplete = () => {
+    if (!groupStatus) return true;
+    return Object.values(groupStatus).every(
+      (status) => status !== "IN_PROGRESS"
+    );
+  };
 
   return (
     <div
@@ -100,6 +125,9 @@ const Sidebar = ({
             })}
           </ul>
         </nav>
+        {isLoading || !isGroupStatusComplete() ? (
+          <Progress value={30} className="h-1" />
+        ) : null}
         <div
           className={classNames({
             "grid place-content-stretch p-4 ": true,

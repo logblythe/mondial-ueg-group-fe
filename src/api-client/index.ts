@@ -5,7 +5,6 @@ import {
   AutoRedeemVoucher,
   GroupAutoRedeemPayload,
 } from "@/type/group-member-payload";
-import { GroupSyncStatus } from "@/type/group-sync-status";
 import { Customer, GroupMember, GroupType, status } from "@/type/group-type";
 import {
   GroupVoucherGenerationPayload,
@@ -74,9 +73,15 @@ class ApiClient {
     );
   }
 
+  public async getGroupVoucherGenerationStatus(): Promise<Map<string, string>> {
+    return this.httpClient.request<Map<string, string>>(
+      apiUrls.groups.all_group_status
+    );
+  }
+
   public async generateVoucherStatus(groupId: string): Promise<status> {
     return this.httpClient.request<status>(
-      `${apiUrls.groups.get}/generate-vouchers/status/${groupId}`,
+      `${apiUrls.groups.generate_voucher_status_by_id.replace(":id", groupId)}`,
       "GET",
       {}
     );
@@ -112,23 +117,6 @@ class ApiClient {
       "POST",
       {},
       payload
-    );
-  }
-  public async syncGroupMembers(
-    groupId: string,
-    payload: SyncGroupPayload
-  ): Promise<void> {
-    return this.httpClient.request<void>(
-      `${apiUrls.groups.sync}`.replace(":id", groupId),
-      "POST",
-      {},
-      payload
-    );
-  }
-
-  public async getSyncStatus(groupId: string): Promise<GroupSyncStatus> {
-    return this.httpClient.request<GroupSyncStatus>(
-      `${apiUrls.groups.syncStatus}`.replace(":id", groupId)
     );
   }
 

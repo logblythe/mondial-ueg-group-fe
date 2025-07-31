@@ -16,12 +16,12 @@ export default function RootLayout({
 
   return (
     <div className="relative h-screen overflow-hidden md:flex">
-      <Sidebar
-        collapsed={collapsed}
-        setCollapsed={setSidebarCollapsed}
-        shown={showSidebar}
-      />
       <ReactQueryProvider>
+        <Sidebar
+          collapsed={collapsed}
+          setCollapsed={setSidebarCollapsed}
+          shown={showSidebar}
+        />
         <div className="flex-1 text-2xl  h-screen overflow-y-auto">
           <Navbar onMenuButtonClick={() => setShowSidebar((prev) => !prev)} />
           {children}
