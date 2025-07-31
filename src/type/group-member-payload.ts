@@ -11,4 +11,5 @@ export type AutoRedeemVoucher = {
   groupName: string;
   openID?: string;
   contactId: string;
+  internalNumber: string;
 };

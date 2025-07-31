@@ -23,6 +23,7 @@ export const createVoucherGenerationPayload = (
       role: "DELEGATE",
       groupName: groupName,
       type: member.typeForVoucher,
+      internalNumber: member.internalNumber.toString(),
     };
   });
   const payload = { vouchers: generateVoucher };
@@ -47,6 +48,7 @@ export const createAutoRedeemPayload = (
       groupName: groupName,
       type: member.typeForVoucher,
       openID: member.openID ?? null,
+      internalNumber: member.internalNumber.toString(),
     };
   });
   const payload = { vouchers: generateAutoRedeem };
