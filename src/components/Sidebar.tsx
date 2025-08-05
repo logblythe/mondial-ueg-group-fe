@@ -126,7 +126,7 @@ const Sidebar = ({
           </ul>
         </nav>
         {isLoading || !isGroupStatusComplete() ? (
-          <Progress value={30} className="h-1" />
+          <Progress value={30} className="h-2" />
         ) : null}
         <div
           className={classNames({
